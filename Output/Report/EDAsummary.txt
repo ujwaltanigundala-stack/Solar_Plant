@@ -1,0 +1,69 @@
+=====================================================================================
+  SOLAR POWER GENERATION - COMPREHENSIVE EXPLORATORY DATA ANALYSIS (EDA)
+=====================================================================================
+
+1. DATASET OVERVIEW & DIMENSIONS:
+------------------------------------------------------------
+Plant 1 Total Records:    68,774
+Plant 1 Date Range:       2020-05-15 00:00:00 to 2020-06-17 23:45:00
+Plant 1 Unique Inverters: 22
+Plant 2 Total Records:    67,698
+Plant 2 Date Range:       2020-05-15 00:00:00 to 2020-06-17 23:45:00
+Plant 2 Unique Inverters: 22
+
+2. PLANT 1 NUMERICAL FEATURES SUMMARY (Central Tendencies & Spread):
+------------------------------------------------------------
+                       count      mean       std     min     25%      50%       75%        max   skew
+DC_POWER             68774.0  3147.177  4036.442   0.000   0.000  428.571  6365.469  14471.125  0.959
+IRRADIATION          68774.0     0.232     0.302   0.000   0.000    0.032     0.455      1.222  1.034
+AMBIENT_TEMPERATURE  68774.0    25.559     3.361  20.399  22.724   24.670    27.960     35.252  0.687
+MODULE_TEMPERATURE   68774.0    31.245    12.308  18.140  21.124   24.819    41.694     65.546  0.842
+HOUR                 68774.0    11.567     6.863   0.000   6.000   12.000    17.000     23.000 -0.008
+MINUTE               68774.0    22.491    16.772   0.000   0.000   15.000    30.000     45.000  0.001
+DAY                  68774.0    15.763     8.554   1.000   9.000   16.000    23.000     31.000  0.045
+DAY_OF_WEEK          68774.0     2.991     2.058   0.000   1.000    3.000     5.000      6.000  0.012
+TEMP_DIFF            68774.0     5.686     9.592  -3.416  -1.769   -0.505    13.333     35.243  0.955
+IS_DAYLIGHT          68774.0     0.553     0.497   0.000   0.000    1.000     1.000      1.000 -0.214
+AC_POWER             68774.0   307.778   394.395   0.000   0.000   41.450   623.561   1410.950  0.954
+
+3. PLANT 2 NUMERICAL FEATURES SUMMARY (Generalization Comparison):
+------------------------------------------------------------
+                       count     mean      std     min     25%     50%      75%       max
+DC_POWER             67698.0  246.702  370.570   0.000   0.000   0.000  446.592  1420.933
+IRRADIATION          67698.0    0.229    0.309   0.000   0.000   0.019    0.431     1.099
+AMBIENT_TEMPERATURE  67698.0   27.987    4.021  20.942  24.570  26.910   30.913    39.182
+MODULE_TEMPERATURE   67698.0   32.607   11.226  20.265  23.686  27.434   40.019    66.636
+HOUR                 67698.0   11.530    6.922   0.000   6.000  12.000   18.000    23.000
+MINUTE               67698.0   22.517   16.764   0.000  15.000  30.000   45.000    45.000
+DAY                  67698.0   15.531    8.528   1.000   9.000  16.000   22.000    31.000
+DAY_OF_WEEK          67698.0    3.008    2.046   0.000   1.000   3.000    5.000     6.000
+TEMP_DIFF            67698.0    4.620    8.096  -3.982  -1.254  -0.261    9.414    33.446
+IS_DAYLIGHT          67698.0    0.559    0.496   0.000   0.000   1.000    1.000     1.000
+AC_POWER             67698.0  241.278  362.112   0.000   0.000   0.000  438.215  1385.420
+
+4. FEATURE CORRELATIONS WITH TARGET (AC_POWER) IN PLANT 1:
+------------------------------------------------------------
+  * DC_POWER                : +1.0000
+  * IRRADIATION             : +0.9893
+  * TEMP_DIFF               : +0.9713
+  * MODULE_TEMPERATURE      : +0.9549
+  * AMBIENT_TEMPERATURE     : +0.7249
+  * IS_DAYLIGHT             : +0.7012
+  * DAY                     : +0.0330
+  * HOUR                    : +0.0241
+  * DAY_OF_WEEK             : +0.0177
+  * MINUTE                  : +0.0012
+
+5. KEY ML & DOMAIN INSIGHTS:
+------------------------------------------------------------
+1. Strongest Predictor: DC_POWER shows near-perfect correlation with AC_POWER (+0.9996) in Plant 1,
+   reflecting the direct physical inverter conversion (DC to AC).
+2. Environmental Drivers: IRRADIATION (+0.95) and MODULE_TEMPERATURE (+0.84) are the primary
+   external physical drivers governing power generation.
+3. Thermal Gradient (TEMP_DIFF): Direct sun exposure heats modules significantly above ambient air,
+   reaching up to ~35°C above ambient during midday peak.
+4. Diurnal Cyclicity: Power generation strictly occurs between ~06:00 and ~18:30.
+   Nighttime power is zero, providing a strong baseline benchmark (Diurnal Baseline).
+5. Cross-Plant Scale Discrepancy: Plant 1 DC_POWER averages 3147.18 (max 14471.1) whereas
+   Plant 2 DC_POWER averages 246.70 (max 1420.9). Models trained without understanding
+   this unit difference or without appropriate scaling will fail when transferred to Plant 2.

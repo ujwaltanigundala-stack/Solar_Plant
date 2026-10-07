@@ -1,0 +1,65 @@
+================================================================================
+  SOLAR POWER GENERATION - DATA CLEANING & OUTLIER REPORT
+================================================================================
+
+1. INGESTION & DEDUPLICATION SUMMARY:
+--------------------------------------------------
+Plant 1 Raw Merged Rows:   68,774
+Plant 1 Cleaned Rows:      68,774
+Plant 1 Rows Dropped/Dedup: 0
+
+Plant 2 Raw Merged Rows:   67,698
+Plant 2 Cleaned Rows:      67,698
+Plant 2 Rows Dropped/Dedup: 0
+
+2. PLANT 1 IQR OUTLIER DETECTION (1.5 * IQR Rule):
+--------------------------------------------------
+Feature: DC_POWER               | Q1=0.0      Q3=6365.4688 IQR=6365.4688
+  Lower Bound: -9548.2031 | Upper Bound: 15913.6719
+  Outliers:    0 (0.0%) | Range: [0.0 to 14471.125]
+
+Feature: AC_POWER               | Q1=0.0      Q3=623.5612 IQR=623.5612
+  Lower Bound: -935.3417 | Upper Bound: 1558.9029
+  Outliers:    0 (0.0%) | Range: [0.0 to 1410.95]
+
+Feature: IRRADIATION            | Q1=0.0      Q3=0.4549   IQR=0.4549  
+  Lower Bound: -0.6823  | Upper Bound: 1.1372  
+  Outliers:    44 (0.06%) | Range: [0.0 to 1.2217]
+
+Feature: AMBIENT_TEMPERATURE    | Q1=22.7245  Q3=27.9604  IQR=5.2359  
+  Lower Bound: 14.8706  | Upper Bound: 35.8143 
+  Outliers:    0 (0.0%) | Range: [20.3985 to 35.2525]
+
+Feature: MODULE_TEMPERATURE     | Q1=21.1239  Q3=41.6937  IQR=20.5697 
+  Lower Bound: -9.7306  | Upper Bound: 72.5482 
+  Outliers:    0 (0.0%) | Range: [18.1404 to 65.5457]
+
+3. PLANT 2 IQR OUTLIER DETECTION (1.5 * IQR Rule):
+--------------------------------------------------
+Feature: DC_POWER               | Q1=0.0      Q3=446.5917 IQR=446.5917
+  Lower Bound: -669.8875 | Upper Bound: 1116.4792
+  Outliers:    3,079 (4.55%) | Range: [0.0 to 1420.9333]
+
+Feature: AC_POWER               | Q1=0.0      Q3=438.215  IQR=438.215 
+  Lower Bound: -657.3225 | Upper Bound: 1095.5375
+  Outliers:    2,993 (4.42%) | Range: [0.0 to 1385.42]
+
+Feature: IRRADIATION            | Q1=0.0      Q3=0.431    IQR=0.431   
+  Lower Bound: -0.6465  | Upper Bound: 1.0776  
+  Outliers:    66 (0.1%) | Range: [0.0 to 1.0988]
+
+Feature: AMBIENT_TEMPERATURE    | Q1=24.5703  Q3=30.9126  IQR=6.3423  
+  Lower Bound: 15.057   | Upper Bound: 40.426  
+  Outliers:    0 (0.0%) | Range: [20.9424 to 39.1816]
+
+Feature: MODULE_TEMPERATURE     | Q1=23.6856  Q3=40.019   IQR=16.3334 
+  Lower Bound: -0.8145  | Upper Bound: 64.5191 
+  Outliers:    44 (0.06%) | Range: [20.2651 to 66.636]
+
+4. DOMAIN-SPECIFIC CLEANING INSIGHT:
+--------------------------------------------------
+* In solar datasets, nighttime zero-values for DC_POWER, AC_POWER, and IRRADIATION are physically
+  valid and natural, not missing or corrupted data. They represent nighttime inactivity.
+* Non-negative clipping ensures physical consistency (power and solar flux cannot be negative).
+* Notice the difference in DC_POWER magnitude between Plant 1 and Plant 2. In Plant 1, DC_POWER is
+  approx 10x AC_POWER, whereas in Plant 2, DC_POWER is approx 1x AC_POWER due to sensor unit scaling.

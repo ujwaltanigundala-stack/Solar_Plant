@@ -1,0 +1,26 @@
+================================================================================
+  SOLAR POWER GENERATION - DATASET SPLIT REPORT
+================================================================================
+
+1. SPLITTING METHODOLOGY:
+--------------------------------------------------
+Method: Time-Aware Chronological Splitting (No Random Shuffle Leakage)
+Plant 1 Split: 70% Train, 15% Validation, 15% Test
+Plant 2 Split: 100% Held-Out Unseen Data (Cross-Plant Generalization Benchmark)
+
+2. SPLIT SIZES & CHRONOLOGICAL RANGES:
+--------------------------------------------------
+Plant 1 Total Clean Records: 68,774
+  * Train Set:      48,141 rows (70.0%) | 2020-05-15 00:00:00 to 2020-06-08 05:00:00
+  * Validation Set: 10,316 rows (15.0%) | 2020-06-08 05:00:00 to 2020-06-13 02:15:00
+  * Test Set:       10,317 rows (15.0%) | 2020-06-13 02:15:00 to 2020-06-17 23:45:00
+
+Plant 2 Total Clean Records: 67,698
+  * Unseen Test:    67,698 rows (100.0%) | 2020-05-15 00:00:00 to 2020-06-17 23:45:00
+
+3. PERSISTENT SPLIT FILES SAVED:
+--------------------------------------------------
+- Train Split:       D:\year-2\ML\Team Project\Data\processed Data\splits\plant1_train.csv
+- Validation Split:  D:\year-2\ML\Team Project\Data\processed Data\splits\plant1_val.csv
+- Test Split:        D:\year-2\ML\Team Project\Data\processed Data\splits\plant1_test.csv
+- Plant 2 Unseen:    D:\year-2\ML\Team Project\Data\processed Data\splits\plant2_unseen.csv

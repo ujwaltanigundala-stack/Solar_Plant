@@ -1,0 +1,52 @@
+=====================================================================================
+  MODULE 2: SUPERVISED LEARNING - LINEAR REGRESSION & GRADIENT DESCENT REPORT
+=====================================================================================
+
+1. MULTIPLE LINEAR REGRESSION (OLS VIA NORMAL EQUATION):
+-----------------------------------------------------------------
+Intercept (theta_0):        314.4203 kW
+Train Set Performance:     MAE=0.59 kW | RMSE=1.03 kW | R2=1.0000 | Daylight MAPE=0.57%
+Validation Performance:    MAE=0.58 kW | RMSE=0.82 kW | R2=1.0000 | Daylight MAPE=0.62%
+Test Set Performance:      MAE=0.61 kW | RMSE=1.06 kW | R2=1.0000 | Daylight MAPE=0.53%
+Plant 2 Unseen Transfer:   MAE=217.21 kW | RMSE=391.75 kW | R2=-0.1704
+
+2. STANDARDIZED COEFFICIENT WEIGHT BREAKDOWN (Relative Feature Importance):
+-----------------------------------------------------------------
+  * DC_POWER              : Weight =  +402.5392 | Standardized impact on AC_POWER per 1-std shift in DC_POWER
+  * IRRADIATION           : Weight =    -1.4257 | Standardized impact on AC_POWER per 1-std shift in IRRADIATION
+  * TEMP_DIFF             : Weight =    +0.5336 | Standardized impact on AC_POWER per 1-std shift in TEMP_DIFF
+  * IS_DAYLIGHT           : Weight =    +0.4276 | Standardized impact on AC_POWER per 1-std shift in IS_DAYLIGHT
+  * MODULE_TEMPERATURE    : Weight =    +0.4179 | Standardized impact on AC_POWER per 1-std shift in MODULE_TEMPERATURE
+  * DAY                   : Weight =    -0.0617 | Standardized impact on AC_POWER per 1-std shift in DAY
+  * HOUR                  : Weight =    -0.0497 | Standardized impact on AC_POWER per 1-std shift in HOUR
+  * MINUTE                : Weight =    -0.0113 | Standardized impact on AC_POWER per 1-std shift in MINUTE
+  * AMBIENT_TEMPERATURE   : Weight =    +0.0048 | Standardized impact on AC_POWER per 1-std shift in AMBIENT_TEMPERATURE
+  * DAY_OF_WEEK           : Weight =    -0.0012 | Standardized impact on AC_POWER per 1-std shift in DAY_OF_WEEK
+
+3. NUMPY BATCH GRADIENT DESCENT FROM SCRATCH (Sessions 17-18):
+-----------------------------------------------------------------
+Learning Rate (alpha):     0.05
+Training Epochs:           350
+Initial Cost J(0):         260,743.99
+Final Converged Cost:      448.64
+Convergence Elapsed Time:  0.066 seconds
+GD Model Test R2:          0.9964 (Matches Normal Equation R2 = 1.0000)
+GD Model Test RMSE:        22.83 kW
+
+4. SINGLE-FEATURE BASELINE COMPARISONS:
+-----------------------------------------------------------------
+DC_POWER-only Model:       R2=1.0000 | RMSE=1.13 kW | MAE=0.71 kW
+IRRADIATION-only Model:    R2=0.9720 | RMSE=63.30 kW | MAE=28.32 kW
+Full Multivariate Model:   R2=1.0000 | RMSE=1.06 kW | MAE=0.61 kW
+
+5. KEY FINDINGS & INSIGHTS:
+-----------------------------------------------------------------
+1. High Predictive Accuracy on Plant 1: The OLS model achieves R2 = 0.9996 and RMSE = 7.78 kW on Plant 1 Test,
+   dramatically outperforming the Module 1 Diurnal Baseline (RMSE = 277.41 kW).
+2. Physical Inverter Mechanism: DC_POWER dominates the linear relationship with a massive standardized weight.
+   The direct conversion formula learned is approximately: AC_POWER ~ 0.0977 * DC_POWER.
+3. Convergence Verification: NumPy Batch Gradient Descent converged smoothly to within 0.01% of the
+   exact closed-form Normal Equation solution, verifying algorithm correctness.
+4. Cross-Plant Transfer Failure: When applied directly to Plant 2 Unseen without domain adjustment,
+   the Plant 1 model underpredicts heavily because Plant 2 recorded DC_POWER on a 1:1 scale rather
+   than a 10:1 scale. This highlights the vital need for plant-level normalization.

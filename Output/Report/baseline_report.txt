@@ -1,0 +1,27 @@
+================================================================================
+  SOLAR POWER GENERATION - ZERO-RULE BASELINE BENCHMARK REPORT
+================================================================================
+
+TARGET REGRESSION VARIABLE: AC_POWER (kW)
+--------------------------------------------------
+
+1. GLOBAL MEAN BASELINE:
+   Strategy:         Global Mean AC_POWER Predictor
+   Train Mean Value: 314.4203 kW
+   Test MAE:         334.4867 kW
+   Test RMSE:        378.9424 kW
+   Test R2:          -0.0032
+   Description:      Always guessing the global training mean AC power provides the basic regression benchmark.
+
+2. DIURNAL SOLAR BASELINE (DOMAIN-AWARE ZERO-RULE):
+   Strategy:         Diurnal Solar Baseline (Night=0, Day=Daylight Mean)
+   Daylight Mean:    564.7108 kW
+   Test MAE:         178.5393 kW
+   Test RMSE:        277.4148 kW
+   Test R2:          0.4623
+   Description:      Incorporating the diurnal solar cycle provides a stronger domain-aware baseline benchmark.
+
+3. CONCLUSION & BENCHMARK THRESHOLDS FOR SUPERVISED MODELS:
+--------------------------------------------------
+Any valid supervised machine learning model (Linear, Ridge, Lasso, Trees, Ensembles)
+must significantly outperform the Diurnal Baseline (RMSE < 277.41 kW, R2 > 0.4623).

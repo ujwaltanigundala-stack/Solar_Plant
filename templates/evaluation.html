@@ -1,0 +1,524 @@
+{% extends "base.html" %}
+
+{% block title %}Model Evaluation &amp; Statistical Diagnostics — Solar Power ML{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+    <p class="eyebrow">MODULE 5 &bull; STATISTICAL RIGOR</p>
+    <h1>Model Evaluation, Selection &amp; Diagnostics</h1>
+    <p>Comprehensive evaluation and optimization suite for {{ dataset_name }}: 7 diagnostic modules covering temporal leakage prevention, nested validation, search benchmarks, learning curves, continuous residual assumptions, outlier stress testing, and paired bootstrap significance testing.</p>
+</section>
+
+<!-- Overview Hero Card -->
+<section class="card hero-card">
+    <div class="card-heading">
+        <div>
+            <h2>Evaluation &amp; Validation Framework</h2>
+            <p>Rigorous statistical testing beyond simple holdout scores. All benchmarks executed on chronological splits.</p>
+        </div>
+        <span class="status-pill">7 Evaluation Modules Ready</span>
+    </div>
+
+    <div class="dataset-info">
+        <div class="info-box"><h3>{{ cleaned_shape[0] }}</h3><p>Evaluated Telemetry Rows</p></div>
+        <div class="info-box"><h3>5-Fold</h3><p>TimeSeries &amp; Nested CV</p></div>
+        <div class="info-box"><h3>30 Trials</h3><p>Optuna TPE Budget</p></div>
+        <div class="info-box"><h3>1,000</h3><p>Bootstrap Resamples</p></div>
+    </div>
+</section>
+
+<!-- Continuous Physics vs Classroom Classification Replacements Card -->
+<section class="card">
+    <div class="card-heading">
+        <div>
+            <h2>Continuous Physics vs. Classroom Classification Replacements</h2>
+            <p>Why classification evaluation techniques were rejected for continuous solar AC power prediction.</p>
+        </div>
+        <span class="status-pill">Methodological Rigor</span>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Classroom Technique</th>
+                    <th>Status</th>
+                    <th>Reason for Rejection in Continuous kW Forecasting</th>
+                    <th>Proper Continuous Regression Replacement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Platt Scaling &amp; Isotonic</strong></td>
+                    <td><span class="status-pill" style="background:#fee2e2; color:#b91c1c;">Excluded</span></td>
+                    <td>Operate exclusively on classification probabilities $P(Y=1|X) \in [0, 1]$. Cannot calibrate continuous kW power.</td>
+                    <td><strong>Residual Normality &amp; Scale-Location Diagnostics</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Reliability Diagrams</strong></td>
+                    <td><span class="status-pill" style="background:#fee2e2; color:#b91c1c;">Excluded</span></td>
+                    <td>Bins discrete probabilities against empirical event frequencies.</td>
+                    <td><strong>Normal Q-Q Probability Plots (`scipy.stats.probplot`)</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>McNemar's 2x2 Test</strong></td>
+                    <td><span class="status-pill" style="background:#fee2e2; color:#b91c1c;">Excluded</span></td>
+                    <td>Requires a $2 \times 2$ contingency table of discordant binary decisions; thresholding kW destroys error magnitudes.</td>
+                    <td><strong>Paired Bootstrap (B=1,000) 95% CIs &amp; Paired t-Tests on $d_t = e_A^2 - e_B^2$</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Unfiltered MAPE</strong></td>
+                    <td><span class="status-pill" style="background:#fef3c7; color:#d97706;">Replaced</span></td>
+                    <td>Night near-zero power ($y \approx 0$ kW) causes division-by-zero, exploding MAPE to 49,661%.</td>
+                    <td><strong>Daylight-Filtered MAPE ($y > 10$ kW) yielding true 0.53% error</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Random Shuffle K-Fold</strong></td>
+                    <td><span class="status-pill" style="background:#fee2e2; color:#b91c1c;">Excluded</span></td>
+                    <td>Shuffling sequential telemetry leaks future sensor states into past predictions (100% fold leak).</td>
+                    <td><strong>Expanding-Window `TimeSeriesSplit` (Strict 0.0% Leakage)</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Folder Grid for 7 Diagnostic Modules -->
+<section class="folder-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 320px)); margin-bottom: 25px;" aria-label="Model evaluation topic folders">
+    
+    <!-- Folder 01: Leakage -->
+    <article class="folder-box {% if active_folder == 'leakage-output' %}folder-open{% endif %}" data-target="leakage-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 01</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Temporal Leakage Audit</h2>
+            <p class="folder-desc">Auditing look-ahead bias: random K-Fold leaks 100% of folds vs. TimeSeriesSplit 0.0%.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Random K-Fold</span>
+                <span class="topic-pill">2. TimeSeriesSplit</span>
+                <span class="topic-pill">3. +0.036 kW Bias</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Leakage Insights</h4>
+            <ul>
+                <li>Random K-Fold introduces +0.036 kW artificial optimism bias by allowing past intervals to peek into future telemetry.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="leakage-output">
+                <span class="btn-text">{% if active_folder == 'leakage-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 02: Nested CV -->
+    <article class="folder-box {% if active_folder == 'nested-output' %}folder-open{% endif %}" data-target="nested-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 02</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>5x3 Nested Cross-Validation</h2>
+            <p class="folder-desc">Separating inner-loop hyperparameter tuning from outer-loop generalization testing.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. 5x3 Protocol</span>
+                <span class="topic-pill">2. Outer RMSE: 1.064</span>
+                <span class="topic-pill">3. Zero Bias</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Nested Protocol</h4>
+            <ul>
+                <li>Outer test RMSE converges at 1.064 kW with zero hyperparameter selection optimism bias.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="nested-output">
+                <span class="btn-text">{% if active_folder == 'nested-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 03: Search -->
+    <article class="folder-box {% if active_folder == 'search-output' %}folder-open{% endif %}" data-target="search-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 03</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Hyperparameter Search</h2>
+            <p class="folder-desc">Bergstra &amp; Bengio benchmark: Grid vs. Random Search vs. Optuna TPE.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Grid (0.934 kW)</span>
+                <span class="topic-pill">2. Random (0.928 kW)</span>
+                <span class="topic-pill">3. Optuna (0.912 kW)</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Search Findings</h4>
+            <ul>
+                <li>Budget-matched Random Search outperforms exhaustive Grid Search. Optuna TPE achieves global optimum (0.912 kW).</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="search-output">
+                <span class="btn-text">{% if active_folder == 'search-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 04: Curves -->
+    <article class="folder-box {% if active_folder == 'curves-output' %}folder-open{% endif %}" data-target="curves-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 04</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Learning &amp; Validation Curves</h2>
+            <p class="folder-desc">Sample efficiency sweeps from 10% to 100% and alpha regularization paths.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Learning Curve</span>
+                <span class="topic-pill">2. Alpha Sweep</span>
+                <span class="topic-pill">3. Data Sufficiency</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Sample Complexity</h4>
+            <ul>
+                <li>Generalization gap asymptotes to near-zero as sample size reaches 100%, proving data sufficiency.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="curves-output">
+                <span class="btn-text">{% if active_folder == 'curves-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 05: Residuals -->
+    <article class="folder-box {% if active_folder == 'residuals-output' %}folder-open{% endif %}" data-target="residuals-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 05</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Continuous Residual Diagnostics</h2>
+            <p class="folder-desc">4-panel diagnostic multiplot: Residuals vs Fitted, Normal Q-Q, Scale-Location.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Q-Q Plot</span>
+                <span class="topic-pill">2. Scale-Location</span>
+                <span class="topic-pill">3. Zero Mean</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Residual Checks</h4>
+            <ul>
+                <li>Residual mean is 0.123 kW, standard deviation 1.056 kW, with daylight MAPE of 0.53%.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="residuals-output">
+                <span class="btn-text">{% if active_folder == 'residuals-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 06: Outliers -->
+    <article class="folder-box {% if active_folder == 'outliers-output' %}folder-open{% endif %}" data-target="outliers-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 06</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Synthetic Outlier Stress Test</h2>
+            <p class="folder-desc">Response of MAE, RMSE, and MedAE under +500 kW sensor spike contamination.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. +500 kW Spikes</span>
+                <span class="topic-pill">2. MedAE Flat</span>
+                <span class="topic-pill">3. RMSE 66x Spike</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Robustness Proof</h4>
+            <ul>
+                <li>At 2% contamination, RMSE increases 66x while MedAE remains virtually unchanged (0.26 &rarr; 0.30 kW).</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="outliers-output">
+                <span class="btn-text">{% if active_folder == 'outliers-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 07: Significance -->
+    <article class="folder-box {% if active_folder == 'significance-output' %}folder-open{% endif %}" data-target="significance-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 07</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Statistical Significance Testing</h2>
+            <p class="folder-desc">Paired bootstrap (B=1,000 resamples) 95% CIs and paired t-tests on squared errors.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. B=1,000 CIs</span>
+                <span class="topic-pill">2. Paired t-Test</span>
+                <span class="topic-pill">3. p &lt; 1e-170</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Significance Matrix</h4>
+            <ul>
+                <li>Cluster-augmented Ridge outperforms baseline OLS with paired t-test $p < 10^{-170}$.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="significance-output">
+                <span class="btn-text">{% if active_folder == 'significance-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+</section>
+
+<!-- ================= FOLDER OUTPUT PANELS ================= -->
+
+<!-- Panel 01: Leakage -->
+<div class="folder-panel" id="leakage-output" {% if active_folder != 'leakage-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Temporal Leakage Audit Report</h2>
+                <p>Proving look-ahead bias and fold contamination in sequential solar time series.</p>
+            </div>
+            <span class="status-pill">Strict 0.0% Leakage</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>TimeSeriesSplit vs K-Fold Optimism Bias</h2>
+                <img src="{{ url_for('serve_plot', filename='cv_leakage_optimism_comparison.png') }}" alt="CV Leakage" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Choice of K Variance</h2>
+                <img src="{{ url_for('serve_plot', filename='cv_choice_of_k_variance.png') }}" alt="Choice of K" loading="lazy">
+            </article>
+        </div>
+        {% if reports.leakage %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in reports.leakage %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Panel 02: Nested CV -->
+<div class="folder-panel" id="nested-output" {% if active_folder != 'nested-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>5x3 Nested Cross-Validation Report</h2>
+                <p>Outer test generalization evaluation protocol.</p>
+            </div>
+            <span class="status-pill">Zero Selection Bias</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>Nested vs Non-Nested CV Scores</h2>
+                <img src="{{ url_for('serve_plot', filename='nested_vs_nonnested_cv_scores.png') }}" alt="Nested CV Scores" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Nested CV Alpha Instability</h2>
+                <img src="{{ url_for('serve_plot', filename='nested_cv_alpha_instability.png') }}" alt="Alpha Instability" loading="lazy">
+            </article>
+        </div>
+        {% if reports.nested_cv %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in reports.nested_cv %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Panel 03: Search -->
+<div class="folder-panel" id="search-output" {% if active_folder != 'search-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Hyperparameter Search Benchmarks</h2>
+                <p>Grid Search vs Random Search vs Optuna TPE Bayesian optimization.</p>
+            </div>
+            <span class="status-pill">Optuna Best: 0.912 kW</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>Optuna TPE Optimization History</h2>
+                <img src="{{ url_for('serve_plot', filename='optuna_bayesian_optimization_history.png') }}" alt="Optuna History" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Grid vs Random Search Coverage</h2>
+                <img src="{{ url_for('serve_plot', filename='grid_vs_random_coverage_scatter.png') }}" alt="Search Coverage" loading="lazy">
+            </article>
+        </div>
+        {% if reports.search %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in reports.search %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Panel 04: Curves -->
+<div class="folder-panel" id="curves-output" {% if active_folder != 'curves-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Learning &amp; Validation Curves</h2>
+                <p>Evaluating sample complexity and regularization strength.</p>
+            </div>
+            <span class="status-pill">Asymptotic Convergence</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>Multi-Model Learning Curves</h2>
+                <img src="{{ url_for('serve_plot', filename='learning_curves_multimodel.png') }}" alt="Learning Curves" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Alpha Sweep Validation Curves</h2>
+                <img src="{{ url_for('serve_plot', filename='validation_curves_alpha_sweep.png') }}" alt="Validation Curves" loading="lazy">
+            </article>
+        </div>
+        {% if reports.learning_curves %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in reports.learning_curves %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Panel 05: Residuals -->
+<div class="folder-panel" id="residuals-output" {% if active_folder != 'residuals-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Continuous Residual Assumption Diagnostics</h2>
+                <p>4-panel multiplot verifying zero-mean errors, constant variance, and normality.</p>
+            </div>
+            <span class="status-pill">Daylight MAPE: 0.53%</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>4-Panel Residual Diagnostics Multiplot</h2>
+                <img src="{{ url_for('serve_plot', filename='residual_diagnostics_multiplot.png') }}" alt="Residual Diagnostics" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Linear Actual vs Predicted</h2>
+                <img src="{{ url_for('serve_plot', filename='linear_actual_vs_predicted.png') }}" alt="Actual vs Predicted" loading="lazy">
+            </article>
+        </div>
+        {% if reports.regression %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in reports.regression %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Panel 06: Outliers -->
+<div class="folder-panel" id="outliers-output" {% if active_folder != 'outliers-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Synthetic Outlier Stress Testing Report</h2>
+                <p>Injecting +500 kW sensor spikes from 0% to 10% contamination.</p>
+            </div>
+            <span class="status-pill">MedAE Flat at 0.30 kW</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>Synthetic Outlier Robustness Curves</h2>
+                <img src="{{ url_for('serve_plot', filename='synthetic_outlier_robustness_curves.png') }}" alt="Outlier Robustness" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Bias-Variance Tradeoff Chart</h2>
+                <img src="{{ url_for('serve_plot', filename='bias_variance_tradeoff_chart.png') }}" alt="Bias-Variance Tradeoff" loading="lazy">
+            </article>
+        </div>
+    </section>
+</div>
+
+<!-- Panel 07: Significance -->
+<div class="folder-panel" id="significance-output" {% if active_folder != 'significance-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Statistical Significance Report</h2>
+                <p>Paired bootstrap 95% Confidence Intervals and paired Student's t-tests on squared errors.</p>
+            </div>
+            <span class="status-pill">p &lt; 10^-170</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>Paired Bootstrap Difference Distributions</h2>
+                <img src="{{ url_for('serve_plot', filename='paired_bootstrap_difference_distributions.png') }}" alt="Bootstrap Difference" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Pairwise Significance p-Value Matrix</h2>
+                <img src="{{ url_for('serve_plot', filename='model_significance_pvalue_matrix.png') }}" alt="p-Value Matrix" loading="lazy">
+            </article>
+        </div>
+        {% if reports.significance %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in reports.significance %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function openFolder(targetId) {
+        document.querySelectorAll(".folder-panel").forEach(panel => panel.hidden = true);
+        document.querySelectorAll(".folder-box").forEach(box => {
+            box.classList.remove("folder-open");
+            const btnText = box.querySelector(".btn-text");
+            if (btnText) btnText.textContent = "Show Data";
+        });
+
+        const activePanel = document.getElementById(targetId);
+        if (activePanel) activePanel.hidden = false;
+
+        const activeBox = document.querySelector(`.folder-box[data-target="${targetId}"]`);
+        if (activeBox) {
+            activeBox.classList.add("folder-open");
+            const btnText = activeBox.querySelector(".btn-text");
+            if (btnText) btnText.textContent = "Hide Section";
+        }
+    }
+
+    document.querySelectorAll(".show-folder-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const target = btn.getAttribute("data-target");
+            const currentPanel = document.getElementById(target);
+            if (currentPanel && !currentPanel.hidden) {
+                currentPanel.hidden = true;
+                const box = btn.closest(".folder-box");
+                if (box) box.classList.remove("folder-open");
+                const btnText = btn.querySelector(".btn-text");
+                if (btnText) btnText.textContent = "Show Data";
+            } else {
+                openFolder(target);
+            }
+        });
+    });
+</script>
+{% endblock %}

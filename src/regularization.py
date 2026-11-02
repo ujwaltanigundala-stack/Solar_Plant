@@ -220,6 +220,7 @@ def train_regularized_models(
         "best_l1_ratio_elastic": best_l1_ratio_elastic,
         "condition_number_unreg": cf_zero["condition_number"],
         "condition_number_ridge": cf_best["condition_number"],
+        "scaler": scaled["scaler"],
         "X_train_scaled": X_train_s,
         "y_train": y_train,
     }

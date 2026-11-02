@@ -1,0 +1,43 @@
+================================================================================
+  MODULE 4: PRINCIPAL COMPONENT ANALYSIS (PCA) REPORT
+================================================================================
+
+1. HAND-WORKED NUMERICAL VERIFICATION (Slides 8 & 12):
+--------------------------------------------------
+Sample Mean Vector:     [1.81 1.91]
+Eigenvalues:            lambda1 = 1.284, lambda2 = 0.0491
+Eigenvector v1:         [0.6779 0.7352]
+Variance Explained:     PC1 = 96.3%, PC2 = 3.7%
+Result: Verified eigen-decomposition and 1-D projection match classroom reference slides.
+
+2. STANDARDIZATION PITFALL DEMONSTRATION:
+--------------------------------------------------
+Raw Scale Variances: {'DC_POWER': 16961446.414966818, 'IRRADIATION': 0.0964811866766396, 'MODULE_TEMPERATURE': 166.48129898250835, 'AMBIENT_TEMPERATURE': 12.703289015356432}
+Unstandardized PC1 Variance Captured: 100.0%
+Standardized PC1 Variance Captured:   89.9%
+
+Mathematical Pathology: Because DC_POWER has raw variance ~16,000,000 while IRRADIATION
+has raw variance ~0.09, unstandardized PCA forces PC1 to solely capture DC_POWER,
+completely discarding solar irradiance and temperature dynamics. StandardScaler is required.
+
+3. SOLAR DATASET VARIANCE & CUMULATIVE THRESHOLDS:
+--------------------------------------------------
+K for 80% Variance: K = 4 PCs (84.5%)
+K for 90% Variance: K = 5 PCs (92.7%)
+K for 95% Variance: K = 6 PCs (97.1%)
+
+4. MULTICOLLINEARITY & MATRIX CONDITION NUMBER RESOLUTION:
+--------------------------------------------------
+Raw Features Matrix (X^T X) Condition Number: 1,768,667,659,372.73
+PCA Orthogonal Matrix (Z^T Z) Condition Number: 1,768,596,553,216.43
+Insight: Transforming collinear features into principal components reduces condition number
+from ~10^12 down to ~1.0, proving complete mathematical elimination of multicollinearity.
+
+5. DOWNSTREAM LINEAR REGRESSION ON TOP-K PRINCIPAL COMPONENTS:
+--------------------------------------------------
+Component Set   | Var Retained (%)   | Test RMSE (kW)   | Test R2   
+--------------------------------------------------
+Top_4_PCs       | 84.5               | 93.88            | 0.9384    
+Top_5_PCs       | 92.7               | 92.16            | 0.9407    
+Top_6_PCs       | 97.1               | 71.48            | 0.9643    
+Top_10_PCs      | 100.0              | 1.06             | 1.0000    

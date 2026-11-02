@@ -1,0 +1,45 @@
+================================================================================
+  MODULE 5: LEARNING & VALIDATION CURVES DIAGNOSTICS REPORT
+================================================================================
+
+1. LEARNING CURVE ANALYSIS (BIAS VS VARIANCE DIAGNOSIS):
+--------------------------------------------------
+Model: OLS Linear
+  * Initial Validation Error (10% Data): 2.012 kW
+  * Final Validation Error (100% Data):   1.328 kW
+  * Final Generalization Gap:            0.616 kW
+
+Model: Ridge (Optimal)
+  * Initial Validation Error (10% Data): 1.724 kW
+  * Final Validation Error (100% Data):   1.327 kW
+  * Final Generalization Gap:            0.615 kW
+
+Model: Ridge (High Penalty)
+  * Initial Validation Error (10% Data): 157.179 kW
+  * Final Validation Error (100% Data):   72.152 kW
+  * Final Generalization Gap:            33.993 kW
+
+2. VALIDATION CURVE COMPLEXITY TUNING (RIDGE ALPHA):
+--------------------------------------------------
+Optimal Alpha:            0.0001
+Best Validation RMSE:     1.048 kW
+
+Alpha Trajectory Breakdown:
+Alpha        | Train RMSE     | Validation RMSE 
+--------------------------------------------------
+0.00010      | 1.075          | 1.048           
+0.00100      | 1.075          | 1.048           
+0.01000      | 1.075          | 1.048           
+0.10000      | 1.076          | 1.048           
+1.00000      | 1.101          | 1.075           
+10.00000     | 2.074          | 2.375           
+100.00000    | 10.266         | 12.692          
+1000.00000   | 30.557         | 37.478          
+10000.00000  | 69.136         | 81.476          
+
+3. DIAGNOSTIC CONCLUSION:
+--------------------------------------------------
+1. Underfitting Regime: Large alphas (>100) induce severe underfitting as all weights shrink to 0.
+2. Optimal Zone: Alphas between 1e-4 and 0.1 achieve minimal validation error without variance explosion.
+3. Data Scarcity: The validation curve flattens after ~30,000 samples, demonstrating that the
+   monitoring window is fully sufficient to capture the underlying inverter conversion physics.

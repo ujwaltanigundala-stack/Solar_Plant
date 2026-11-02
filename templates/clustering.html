@@ -1,0 +1,480 @@
+{% extends "base.html" %}
+
+{% block title %}Unsupervised Learning &amp; Clustering — Solar Power ML{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+    <p class="eyebrow">MODULE 4 &bull; UNSUPERVISED DISCOVERY</p>
+    <h1>Unsupervised Learning, Manifold Projection &amp; Anomaly Detection</h1>
+    <p>{{ dataset_name }} is analyzed without target labels to discover operational solar generation regimes, isolate physical inverter dropouts, and augment supervised estimators.</p>
+</section>
+
+<!-- Cleaned Telemetry Hero Card -->
+<section class="card hero-card">
+    <div class="card-heading">
+        <div>
+            <h2>Cleaned telemetry dataset</h2>
+            <p>Target AC_POWER is withheld from unsupervised learners to prevent target leakage.</p>
+        </div>
+        <span class="status-pill">7 Unsupervised Modules Ready</span>
+    </div>
+
+    <div class="dataset-info">
+        <div class="info-box"><h3>{{ cleaned_shape[0] }}</h3><p>Observations</p></div>
+        <div class="info-box"><h3>{{ feature_columns|length }}</h3><p>Clustering Features</p></div>
+        <div class="info-box"><h3>K = 4</h3><p>Operational Regimes</p></div>
+        <div class="info-box"><h3>+0.20 kW</h3><p>&Delta; RMSE Augmentation</p></div>
+    </div>
+</section>
+
+<!-- Clustering Features Pills -->
+<section class="card">
+    <h2>Clustering feature columns</h2>
+    <div class="columns">
+        {% for column in feature_columns %}
+            <span class="column">{{ column }}</span>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Folder Grid for Unsupervised Topics -->
+<section class="folder-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 320px)); margin-bottom: 25px;" aria-label="Unsupervised clustering topic folders">
+    
+    <!-- Folder 01: K-Means -->
+    <article class="folder-box {% if active_folder == 'kmeans-output' %}folder-open{% endif %}" data-target="kmeans-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 01</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>K-Means Clustering</h2>
+            <p class="folder-desc">Inertia (WCSS), Elbow inflection at K=4, and silhouette coefficient optimization.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Elbow Curve</span>
+                <span class="topic-pill">2. Silhouette (s=0.518)</span>
+                <span class="topic-pill">3. 4 Regimes</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>K-Means Concepts</h4>
+            <ul>
+                <li><strong>Lloyd vs. MiniBatch:</strong> MiniBatch converges with 10x speedup and &Delta;WCSS &lt; 0.2%.</li>
+                <li><strong>4 Solar Regimes:</strong> Night Standby, Morning Ramp, Afternoon Peak, Thermal Saturation.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="kmeans-output">
+                <span class="btn-text">{% if active_folder == 'kmeans-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 02: Hierarchical -->
+    <article class="folder-box {% if active_folder == 'hierarchical-output' %}folder-open{% endif %}" data-target="hierarchical-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 02</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Hierarchical Clustering</h2>
+            <p class="folder-desc">Agglomerative clustering comparing Ward, Complete, Average, and Single linkages.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Dendrograms</span>
+                <span class="topic-pill">2. Chaining Defect</span>
+                <span class="topic-pill">3. Cophenetic r=0.887</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Linkage Analysis</h4>
+            <ul>
+                <li><strong>Single Linkage Chaining:</strong> Successive single-point merges fail to form distinct solar clusters.</li>
+                <li><strong>Average Linkage:</strong> Yields highest cophenetic correlation coefficient ($c = 0.887$).</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="hierarchical-output">
+                <span class="btn-text">{% if active_folder == 'hierarchical-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 03: DBSCAN -->
+    <article class="folder-box {% if active_folder == 'dbscan-output' %}folder-open{% endif %}" data-target="dbscan-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 03</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>DBSCAN Density Clustering</h2>
+            <p class="folder-desc">Non-convex diurnal clustering isolating physical inverter dropouts as noise points.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. k-Distance Elbow</span>
+                <span class="topic-pill">2. &epsilon;=1.15</span>
+                <span class="topic-pill">3. Dropout Isolation</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Density Metrics</h4>
+            <ul>
+                <li>Identifies physical sensor dropouts where irradiation is high but inverter output collapses to zero.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="dbscan-output">
+                <span class="btn-text">{% if active_folder == 'dbscan-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 04: PCA -->
+    <article class="folder-box {% if active_folder == 'pca-output' %}folder-open{% endif %}" data-target="pca-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 04</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Principal Component Analysis</h2>
+            <p class="folder-desc">Resolving extreme multicollinearity and auditing the standardization pitfall.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Scree Plot</span>
+                <span class="topic-pill">2. PC1: 98.1% Var</span>
+                <span class="topic-pill">3. Scaling Pitfall</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>PCA Pitfall</h4>
+            <ul>
+                <li>Unstandardized PCA is dominated completely by raw DC power (10,000x magnitude), blinding the model to weather.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="pca-output">
+                <span class="btn-text">{% if active_folder == 'pca-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 05: t-SNE & UMAP -->
+    <article class="folder-box {% if active_folder == 'manifold-output' %}folder-open{% endif %}" data-target="manifold-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 05</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>t-SNE &amp; UMAP Manifolds</h2>
+            <p class="folder-desc">Non-linear 2D projections across perplexities and cross-plant embedding.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Perplexity Sweep</span>
+                <span class="topic-pill">2. UMAP 2D Space</span>
+                <span class="topic-pill">3. Domain Separation</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Manifold Projection</h4>
+            <ul>
+                <li>Projecting Plant 2 onto Plant 1's fitted UMAP space visually proves domain separation caused by string hardware.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="manifold-output">
+                <span class="btn-text">{% if active_folder == 'manifold-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 06: Anomaly Detection -->
+    <article class="folder-box {% if active_folder == 'anomaly-output' %}folder-open{% endif %}" data-target="anomaly-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 06</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Multivariate Anomaly Detection</h2>
+            <p class="folder-desc">Triangulation across Isolation Forest, One-Class SVM, and PCA Reconstruction Error.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Isolation Forest</span>
+                <span class="topic-pill">2. One-Class SVM</span>
+                <span class="topic-pill">3. Consensus Venn</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Triangulation</h4>
+            <ul>
+                <li>Isolates 354 consensus high-irradiance inverter dropout faults agreed upon by all three detectors.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="anomaly-output">
+                <span class="btn-text">{% if active_folder == 'anomaly-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 07: Feature Augmentation -->
+    <article class="folder-box {% if active_folder == 'augmentation-output' %}folder-open{% endif %}" data-target="augmentation-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 07</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Cluster Feature Augmentation</h2>
+            <p class="folder-desc">Augmenting Ridge regression with Euclidean distances to the 4 operational centroids.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Centroid Distances</span>
+                <span class="topic-pill">2. RMSE: 0.865 kW</span>
+                <span class="topic-pill">3. Bootstrap p &lt; 1e-170</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Augmentation Gains</h4>
+            <ul>
+                <li>Paired bootstrap (500 resamples) confirms statistically significant RMSE reduction: +0.200 kW (95% CI: [+0.187, +0.216] kW).</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="augmentation-output">
+                <span class="btn-text">{% if active_folder == 'augmentation-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+</section>
+
+<!-- ================= FOLDER OUTPUT PANELS ================= -->
+
+<!-- Panel 01: K-Means -->
+<div class="folder-panel" id="kmeans-output" {% if active_folder != 'kmeans-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>K-Means Operational Regimes Report</h2>
+                <p>Lloyd solver partitioning telemetry into 4 operational solar generation states.</p>
+            </div>
+            <span class="status-pill">K = 4 Optimal</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>Elbow Curve &amp; Silhouette Sweep</h2>
+                <img src="{{ url_for('serve_plot', filename='kmeans_elbow_and_silhouette.png') }}" alt="Elbow and Silhouette" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>2D Operational Clusters</h2>
+                <img src="{{ url_for('serve_plot', filename='kmeans_operational_clusters_2d.png') }}" alt="Operational Clusters" loading="lazy">
+            </article>
+        </div>
+        {% if km_report_lines %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in km_report_lines %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Panel 02: Hierarchical -->
+<div class="folder-panel" id="hierarchical-output" {% if active_folder != 'hierarchical-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Hierarchical Clustering Linkage Diagnostics</h2>
+                <p>Evaluation of Ward, Complete, Average, and Single linkages.</p>
+            </div>
+            <span class="status-pill">Cophenetic r = 0.887</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>Hierarchical Dendrograms Grid</h2>
+                <img src="{{ url_for('serve_plot', filename='hierarchical_dendrograms_grid.png') }}" alt="Dendrograms Grid" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Single Linkage Chaining Defect</h2>
+                <img src="{{ url_for('serve_plot', filename='hierarchical_chaining_diagnostic.png') }}" alt="Chaining Diagnostic" loading="lazy">
+            </article>
+        </div>
+        {% if hier_report_lines %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in hier_report_lines %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Panel 03: DBSCAN -->
+<div class="folder-panel" id="dbscan-output" {% if active_folder != 'dbscan-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>DBSCAN Density Clustering Report</h2>
+                <p>Identifying physical sensor dropouts using optimal &epsilon; = 1.15.</p>
+            </div>
+            <span class="status-pill">&epsilon; = 1.15, MinPts = 15</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>k-Distance Elbow Inflection</h2>
+                <img src="{{ url_for('serve_plot', filename='dbscan_k_distance_elbow.png') }}" alt="k-Distance Elbow" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Core vs Border vs Noise Outliers</h2>
+                <img src="{{ url_for('serve_plot', filename='dbscan_core_border_noise_scatter.png') }}" alt="DBSCAN Clusters" loading="lazy">
+            </article>
+        </div>
+        {% if dbscan_report_lines %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in dbscan_report_lines %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Panel 04: PCA -->
+<div class="folder-panel" id="pca-output" {% if active_folder != 'pca-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Principal Component Analysis Report</h2>
+                <p>Eigenvalue scree plot and feature loadings biplot.</p>
+            </div>
+            <span class="status-pill">PC1: 98.1% Variance</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>Scree &amp; Cumulative Explained Variance</h2>
+                <img src="{{ url_for('serve_plot', filename='pca_scree_and_cumulative_variance.png') }}" alt="PCA Scree" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Standardization Pitfall Contrast</h2>
+                <img src="{{ url_for('serve_plot', filename='pca_standardization_pitfall_contrast.png') }}" alt="PCA Pitfall" loading="lazy">
+            </article>
+        </div>
+        {% if pca_report_lines %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in pca_report_lines %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Panel 05: Manifolds -->
+<div class="folder-panel" id="manifold-output" {% if active_folder != 'manifold-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>t-SNE &amp; UMAP Manifold Learning</h2>
+                <p>Non-linear dimensionality reduction and cross-plant embedding.</p>
+            </div>
+            <span class="status-pill">2D Manifolds</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>t-SNE Perplexity Sweep Grid</h2>
+                <img src="{{ url_for('serve_plot', filename='tsne_perplexity_sweep_grid.png') }}" alt="t-SNE Sweep" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>UMAP Cross-Plant Embedding</h2>
+                <img src="{{ url_for('serve_plot', filename='umap_cross_plant_embedding.png') }}" alt="UMAP Embedding" loading="lazy">
+            </article>
+        </div>
+    </section>
+</div>
+
+<!-- Panel 06: Anomaly Detection -->
+<div class="folder-panel" id="anomaly-output" {% if active_folder != 'anomaly-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Multivariate Anomaly Detection Report</h2>
+                <p>Isolation Forest, One-Class SVM, and PCA reconstruction concordance.</p>
+            </div>
+            <span class="status-pill">354 Consensus Anomalies</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>Detector Concordance Venn Diagram</h2>
+                <img src="{{ url_for('serve_plot', filename='anomaly_detector_concordance_venn.png') }}" alt="Anomaly Venn" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Multivariate Anomaly Profile Scatter</h2>
+                <img src="{{ url_for('serve_plot', filename='anomaly_multivariate_profile_scatter.png') }}" alt="Anomaly Scatter" loading="lazy">
+            </article>
+        </div>
+        {% if anomaly_report_lines %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in anomaly_report_lines %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Panel 07: Feature Augmentation -->
+<div class="folder-panel" id="augmentation-output" {% if active_folder != 'augmentation-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Clustering Feature Augmentation Report</h2>
+                <p>Augmenting Ridge regression with Euclidean distances to the 4 K-Means centroids.</p>
+            </div>
+            <span class="status-pill">RMSE: 1.064 &rarr; 0.865 kW</span>
+        </div>
+        <div class="chart-grid" style="margin-bottom:20px;">
+            <article class="card chart-card">
+                <h2>Augmented Regression Performance</h2>
+                <img src="{{ url_for('serve_plot', filename='cluster_augmented_regression_performance.png') }}" alt="Augmentation Performance" loading="lazy">
+            </article>
+            <article class="card chart-card">
+                <h2>Paired Bootstrap Difference Distribution</h2>
+                <img src="{{ url_for('serve_plot', filename='cluster_augmented_bootstrap_distribution.png') }}" alt="Bootstrap Distribution" loading="lazy">
+            </article>
+        </div>
+        {% if cluster_aug_report_lines %}
+        <div style="background:#f7fbf8; padding:15px; border-radius:10px; border:1px solid #dbe8e2; max-height:360px; overflow-y:auto;">
+            <pre style="margin:0; font-family:monospace; font-size:0.8rem; line-height:1.5;">{% for line in cluster_aug_report_lines %}{{ line }}
+{% endfor %}</pre>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function openFolder(targetId) {
+        document.querySelectorAll(".folder-panel").forEach(panel => panel.hidden = true);
+        document.querySelectorAll(".folder-box").forEach(box => {
+            box.classList.remove("folder-open");
+            const btnText = box.querySelector(".btn-text");
+            if (btnText) btnText.textContent = "Show Data";
+        });
+
+        const activePanel = document.getElementById(targetId);
+        if (activePanel) activePanel.hidden = false;
+
+        const activeBox = document.querySelector(`.folder-box[data-target="${targetId}"]`);
+        if (activeBox) {
+            activeBox.classList.add("folder-open");
+            const btnText = activeBox.querySelector(".btn-text");
+            if (btnText) btnText.textContent = "Hide Section";
+        }
+    }
+
+    document.querySelectorAll(".show-folder-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const target = btn.getAttribute("data-target");
+            const currentPanel = document.getElementById(target);
+            if (currentPanel && !currentPanel.hidden) {
+                currentPanel.hidden = true;
+                const box = btn.closest(".folder-box");
+                if (box) box.classList.remove("folder-open");
+                const btnText = btn.querySelector(".btn-text");
+                if (btnText) btnText.textContent = "Show Data";
+            } else {
+                openFolder(target);
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+================================================================================
+  MODULE 4: t-SNE NON-LINEAR MANIFOLD VISUALIZATION REPORT
+================================================================================
+
+1. MATHEMATICAL FORMULATION & WORKED NUMERICAL EXAMPLE (Slide 7):
+--------------------------------------------------
+Points Tested:               [0.0, 1.0, 5.0, 6.0]
+Point A Neighbor Probs (s=1): [0.0, 1.0, 0.0, 0.0]
+Point A Perplexity (s=1):    1.0
+Solved Sigma for Target Perp=2: 2.7579
+Result: Mathematical conditional probabilities and entropy matching lecture slide verified.
+
+2. SOLAR DATASET PERPLEXITY SWEEP BENCHMARK:
+--------------------------------------------------
+Samples Evaluated: 3,000 rows (subsampled Plant 1 Train)
+Features Used:     DC_POWER, IRRADIATION, AMBIENT_TEMPERATURE, MODULE_TEMPERATURE, TEMP_DIFF, HOUR
+
+Perplexity   | KL Divergence    | Runtime (s)   
+--------------------------------------------------
+5            | 0.3704           | 5.65          
+30           | 0.4392           | 6.64          
+50           | 0.4212           | 7.60          
+
+3. CRITICAL METHODOLOGY CAVEATS (Slide 9 Principles):
+--------------------------------------------------
+1. Non-Metric Distances: Distances between separated clusters in t-SNE are arbitrary.
+   t-SNE preserves local neighborhood topology, not global Euclidean distances.
+2. Perplexity Sensitivity: Low perplexity (Perp=5) fragments continuous diurnal arcs into micro-islands,
+   while high perplexity (Perp=50) smoothly reconstructs the continuous daylight generation curve.
+3. Exploratory Tool Only: Standard t-SNE lacks an out-of-sample transform() method, meaning it
+   CANNOT be used as an upstream feature extractor for live predictive inference.

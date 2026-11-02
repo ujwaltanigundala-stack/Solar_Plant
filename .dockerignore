@@ -1,0 +1,9 @@
+.git
+.idea
+.venv
+venv
+__pycache__
+*.py[cod]
+uploads/*
+Data/Raw Data/
+Frontend/

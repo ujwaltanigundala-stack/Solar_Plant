@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Solar Power Prediction and Generalization{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+    <p class="eyebrow">PHOTOVOLTAIC TELEMETRY PLATFORM</p>
+    <h1>Solar Power Prediction and Generalization</h1>
+    <p>Multivariate solar forecasting, regularized regression modeling, operational regime clustering, and cross-plant domain transfer.</p>
+</section>
+
+<!-- Hero Section with Large Realistic Solar Plant Image -->
+<section class="card hero-card" style="border-top-color: var(--blue);">
+    <div class="card-heading">
+        <div>
+            <h2>Solar Power Facility Overview</h2>
+            <p>Commercial photovoltaic generation plant with 22 grid-tied inverters and weather telemetry.</p>
+        </div>
+        <span class="status-pill" style="background:#e0f2fe; color:#0369a1;">Production System Active</span>
+    </div>
+
+    <!-- Prominently Placed Responsive Solar Plant Hero Image -->
+    <div class="solar-hero-container">
+        <img class="solar-hero-img" src="{{ url_for('static', filename='images/solar-hero.jpg') }}" alt="Solar Power Generation Plant with Photovoltaic Arrays" loading="eager">
+    </div>
+
+    <!-- Project Introduction -->
+    <p style="font-size: 1.05rem; line-height: 1.6; color: var(--ink); margin-top: 15px;">
+        Welcome to the <strong>Solar Power Prediction and Generalization</strong> intelligence platform.
+        This application analyzes synchronized 15-minute sensor feeds from 22 grid-connected inverters across 34 continuous days,
+        models electrical solar generation (<strong>AC_POWER</strong> in kW) using multivariate regression (OLS, Ridge, Lasso, Elastic Net),
+        discovers physical operational regimes through unsupervised clustering, and evaluates cross-plant domain transfer from Plant 1 to Plant 2.
+    </p>
+
+    <!-- Prominent Action Buttons -->
+    <div style="margin-top: 25px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+        <a class="cta-button" href="{{ url_for('feature_engg_page', folder='predictor-output') }}">
+            <span>⚡ Get Started / Predict Solar Power</span> <span>&rarr;</span>
+        </a>
+        <a class="cta-button" href="{{ url_for('load_page') }}" style="background: #e8f8f4; color: var(--blue) !important; border: 1px solid #b6e5db; box-shadow: none;">
+            <span>Explore Telemetry Data</span> <span>&rarr;</span>
+        </a>
+    </div>
+
+    <!-- Key Telemetry Metrics Grid matching Classroom Info Box Style -->
+    <div class="dataset-info" style="margin-top: 28px;">
+        <div class="info-box">
+            <h3>{{ stats.plant1_samples | default(68774) }}</h3>
+            <p>Plant 1 Observations</p>
+        </div>
+        <div class="info-box">
+            <h3>{{ stats.plant2_samples | default(67698) }}</h3>
+            <p>Plant 2 Benchmark</p>
+        </div>
+        <div class="info-box">
+            <h3>{{ stats.num_features | default(10) }}</h3>
+            <p>Telemetry Features</p>
+        </div>
+        <div class="info-box">
+            <h3>{{ stats.num_models | default(4) }}</h3>
+            <p>Regression Models</p>
+        </div>
+    </div>
+</section>
+
+<!-- Project Architecture & Analysis Guide matching Classroom Guide Style -->
+<section class="card">
+    <div class="card-heading">
+        <div>
+            <h2>Project Architecture &amp; Methodology</h2>
+            <p>From raw 15-minute telemetry to continuous sub-watt inverter power prediction.</p>
+        </div>
+        <span class="status-pill">ML Pipeline</span>
+    </div>
+
+    <div class="analysis-guide" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 15px;">
+        <div>
+            <span>Module 1 &bull; Telemetry</span>
+            <strong>Data &amp; EDA</strong>
+            <p>15-minute inner-join alignment, daylight filtering, and diurnal irradiance profile mapping.</p>
+        </div>
+        <div>
+            <span>Module 2 &bull; Supervised</span>
+            <strong>Regularized Regression</strong>
+            <p>OLS Normal Equation vs GD, Ridge L2 condition stabilization, Lasso L1 sparsity, and Elastic Net.</p>
+        </div>
+        <div>
+            <span>Module 4 &bull; Unsupervised</span>
+            <strong>Regimes &amp; Augmentation</strong>
+            <p>4 K-Means operational regimes, DBSCAN dropouts, and cluster centroid distance feature augmentation.</p>
+        </div>
+        <div>
+            <span>Module 5 &bull; Validation</span>
+            <strong>Diagnostics &amp; Transfer</strong>
+            <p>Expanding TimeSeriesSplit, 5x3 Nested CV, synthetic spike testing, and cross-plant domain transfer.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

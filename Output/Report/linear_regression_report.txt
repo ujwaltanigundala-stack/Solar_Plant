@@ -29,7 +29,7 @@ Learning Rate (alpha):     0.05
 Training Epochs:           350
 Initial Cost J(0):         260,743.99
 Final Converged Cost:      448.64
-Convergence Elapsed Time:  0.066 seconds
+Convergence Elapsed Time:  0.1483 seconds
 GD Model Test R2:          0.9964 (Matches Normal Equation R2 = 1.0000)
 GD Model Test RMSE:        22.83 kW
 

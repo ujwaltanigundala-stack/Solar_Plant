@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Load Telemetry Data — Solar Power ML{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+    <p class="eyebrow">STEP 01</p>
+    <h1>Load Solar Telemetry Dataset</h1>
+    <p>Choose between Plant 1, Plant 2, or upload a custom solar telemetry CSV to refresh every view in your dashboard.</p>
+</section>
+
+<section class="card hero-card">
+    <div class="card-heading">
+        <div>
+            <h2>Current dataset</h2>
+            <p>{{ dataset_name }}</p>
+        </div>
+        <span class="status-pill">Ready to analyse</span>
+    </div>
+
+    <!-- Facility Quick Switcher -->
+    <div style="display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap;">
+        <a href="{{ url_for('load_page', plant='1') }}" class="menu-btn {% if selected_plant == '1' %}active{% endif %}" style="display:inline-block; margin:0; border:1px solid #dcebe3;">
+            ☀️ Plant 1 (Training Facility &bull; 68,774 rows)
+        </a>
+        <a href="{{ url_for('load_page', plant='2') }}" class="menu-btn {% if selected_plant == '2' %}active{% endif %}" style="display:inline-block; margin:0; border:1px solid #dcebe3;">
+            ⚡ Plant 2 (Unseen Transfer Facility &bull; 67,698 rows)
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <p class="{{ category }}-message">{{ message }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form class="upload-form" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="dataset">Upload custom solar telemetry CSV</label>
+            <span>CSV files only (Generation &amp; Weather aligned)</span>
+        </div>
+        <input id="dataset" name="dataset" type="file" accept=".csv,text/csv" required>
+        <button type="submit">Upload CSV <span>&rarr;</span></button>
+    </form>
+
+    <div class="dataset-info">
+        <div class="info-box"><h3>{{ shape[0] }}</h3><p>Rows</p></div>
+        <div class="info-box"><h3>{{ shape[1] }}</h3><p>Columns</p></div>
+        <div class="info-box"><h3>{{ inverters_count|default(22) }}</h3><p>Inverter Units</p></div>
+        <div class="info-box"><h3>AC_POWER</h3><p>Regression Target</p></div>
+    </div>
+</section>
+
+<section class="card">
+    <h2>Dataset columns</h2>
+    <div class="columns">
+        {% for column in columns %}
+            <span class="column">{{ column }}</span>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="card">
+    <h2>Dataset preview (First 15 observations)</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    {% for column in columns %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in preview %}
+                    <tr>
+                        {% for column in columns %}
+                            <td>{{ row[column] }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

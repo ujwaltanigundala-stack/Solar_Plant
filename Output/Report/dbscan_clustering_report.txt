@@ -1,0 +1,39 @@
+================================================================================
+  MODULE 4: DBSCAN DENSITY CLUSTERING & ANOMALY REPORT
+================================================================================
+
+1. HAND-WORKED NUMERICAL VERIFICATION (Slides 8 & 11):
+--------------------------------------------------
+Epsilon = 1.5, minPts = 3
+  Point A: Cluster=0  | Classification=CORE
+  Point B: Cluster=0  | Classification=CORE
+  Point C: Cluster=0  | Classification=CORE
+  Point D: Cluster=0  | Classification=CORE
+  Point I: Cluster=0  | Classification=BORDER
+  Point E: Cluster=1  | Classification=CORE
+  Point F: Cluster=1  | Classification=CORE
+  Point G: Cluster=1  | Classification=CORE
+  Point H: Cluster=-1 | Classification=NOISE
+  Result: Correctly reproduced lecture slide verification (A-G Core, I Border, H Noise).
+
+2. SOLAR DATASET DENSITY CLUSTERING PARAMETERS:
+--------------------------------------------------
+Analyzed Samples:         8,000 rows (subsampled Plant 1 Train)
+Dimensionality:           6 features
+minPts Heuristic:         12 (2 * dimension)
+Optimal Epsilon (Elbow):  0.450
+Discovered Clusters:      1
+Execution Time:           0.303 seconds
+
+3. POINT DENSITY CLASSIFICATION BREAKDOWN:
+--------------------------------------------------
+Core Points:   7,753 (96.9%)
+Border Points: 151 (1.9%)
+Noise Points:  96 (1.2%)
+
+4. PHYSICAL EQUIPMENT FAULT CONCORDANCE:
+--------------------------------------------------
+High-Irradiation Low-Power Inverter Dropouts: 6
+DBSCAN Noise Identified in Dropouts:          6
+Insight: DBSCAN noise points cleanly flag rare daytime inverter trips and sensor disconnects
+without requiring supervised fault labels.

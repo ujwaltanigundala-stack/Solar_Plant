@@ -3,23 +3,57 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual Environments
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
 .venv/
 venv/
 ENV/
 env/
+env.bak/
+venv.bak/
 
-# Environment variables & secrets
-.env
-.env.*
-
-# IDEs and Editors
+# IDE & Editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+*.sublime-project
+*.sublime-workspace
 
-# Operating System files
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+
+# Web application runtime uploads
+uploads/*
+!uploads/.gitkeep
+
+# Operating system files
 .DS_Store
 Thumbs.db
 desktop.ini

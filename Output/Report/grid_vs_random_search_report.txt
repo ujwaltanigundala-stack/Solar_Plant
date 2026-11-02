@@ -1,0 +1,25 @@
+================================================================================
+  MODULE 5: GRID SEARCH VS RANDOM SEARCH BENCHMARK REPORT
+================================================================================
+
+1. EXPERIMENT A: LOW DIMENSIONALITY (RIDGE - 2 PARAMETERS):
+--------------------------------------------------
+Grid Search (16 Fits):   Best RMSE = 0.912 kW (0.195s)
+Random Search (16 Fits): Best RMSE = 0.912 kW (0.135s)
+Grid Best Params:        {'ridge__alpha': 0.001, 'ridge__tol': 0.0001}
+Random Best Params:      {'ridge__alpha': 0.00066, 'ridge__tol': 0.07579}
+
+2. EXPERIMENT B: HIGHER DIMENSIONALITY (ELASTICNET - 4 PARAMETERS):
+--------------------------------------------------
+Grid Search (27 Fits):   Best RMSE = 0.934 kW (0.204s)
+Random Search (25 Fits): Best RMSE = 0.928 kW (0.222s)
+Grid Best Params:        {'elastic__alpha': 0.001, 'elastic__l1_ratio': 0.9, 'elastic__tol': 0.0001}
+Random Best Params:      {'elastic__alpha': 0.00015, 'elastic__l1_ratio': 0.86839, 'elastic__tol': 6e-05}
+
+3. BERGSTRA & BENGIO (2012) PRINCIPLES VALIDATION:
+--------------------------------------------------
+1. Low Dimensionality: Both Grid and Random search easily locate the optimal region when D=2.
+2. High Dimensionality: In 4D ElasticNet, Grid Search wastes fits testing identical alpha levels
+   repeatedly across redundant combinations (only 3 unique alpha values tested).
+   Random Search explores 25 distinct alpha values and 25 distinct l1_ratio values,
+   achieving superior parameter space coverage under an identical compute budget.

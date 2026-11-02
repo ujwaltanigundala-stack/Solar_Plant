@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}EDA — Solar Power Prediction{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+    <p class="eyebrow">EXPLORATORY DATA ANALYSIS</p>
+    <h1>Exploratory Data Analysis (EDA)</h1>
+    <p>Comprehensive statistical overview, diurnal distributions, DC-to-AC conversion curves, and correlations of <strong>{{ dataset_name }}</strong>.</p>
+</section>
+
+<!-- Overview Hero Card -->
+<section class="card hero-card">
+    <div class="card-heading">
+        <div>
+            <h2>Dataset overview</h2>
+            <p>15-minute telemetry health checks, inverter sensors, and pyranometers.</p>
+        </div>
+        <span class="status-pill">{{ overview.rows }} records</span>
+    </div>
+    <div class="dataset-info">
+        <div class="info-box"><h3>{{ overview.rows }}</h3><p>Rows</p></div>
+        <div class="info-box"><h3>{{ overview.cols }}</h3><p>Columns</p></div>
+        <div class="info-box"><h3>{{ overview.duplicate_rows }}</h3><p>Duplicate rows</p></div>
+        <div class="info-box"><h3>{{ overview.anomaly_rate }}%</h3><p>Sensor Anomaly rate</p></div>
+    </div>
+</section>
+
+<!-- Data Types Card -->
+<section class="card">
+    <h2>Data types &amp; Schema</h2>
+    <div class="columns">
+        {% for item in overview.data_types %}
+            <span class="column">{{ item.column }}: {{ item.dtype }}</span>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Missing Values Check -->
+<section class="card">
+    <h2>Missing values audit</h2>
+    {% if overview.missing_table %}
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Feature</th><th>Missing values</th><th>Missing %</th></tr></thead>
+                <tbody>
+                    {% for row in overview.missing_table %}
+                        <tr><td>{{ row.column }}</td><td>{{ row.count }}</td><td>{{ row.percent }}%</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="success-message">No missing values found across synchronized 15-minute telemetry.</p>
+    {% endif %}
+</section>
+
+<!-- Duplicate Rows Check -->
+<section class="card">
+    <h2>Duplicate-row check</h2>
+    {% if overview.duplicate_rows == 0 %}
+        <p class="success-message">No duplicate timestamps or duplicate sensor rows were found.</p>
+    {% else %}
+        <p class="error-message">{{ overview.duplicate_rows }} duplicate rows detected.</p>
+    {% endif %}
+</section>
+
+<!-- Univariate Numeric Summary -->
+<section class="card">
+    <h2>Univariate analysis: numeric summary statistics</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Mean</th>
+                    <th>Std.</th>
+                    <th>Min</th>
+                    <th>Median (50%)</th>
+                    <th>Max</th>
+                    <th>Skewness</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in univariate.numeric_table %}
+                <tr>
+                    <td><strong>{{ row.column }}</strong></td>
+                    <td>{{ "%.2f"|format(row.mean) }}</td>
+                    <td>{{ "%.2f"|format(row.std) }}</td>
+                    <td>{{ "%.2f"|format(row.min) }}</td>
+                    <td>{{ "%.2f"|format(row['50%']) }}</td>
+                    <td>{{ "%.2f"|format(row.max) }}</td>
+                    <td>{{ "%.2f"|format(row.skew) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Head & Tail Observations Preview -->
+{% for label, rows in [('First 10 observations (head)', overview.head_rows), ('Last 10 observations (tail)', overview.tail_rows)] %}
+<section class="card">
+    <h2>{{ label }}</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    {% if rows and rows[0] %}
+                        {% for col in rows[0].keys() %}<th>{{ col }}</th>{% endfor %}
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    {% for col, val in row.items() %}<td>{{ val }}</td>{% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endfor %}
+
+<!-- Correlation with Target AC_POWER -->
+<section class="card">
+    <h2>Bivariate correlation with AC_POWER target</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Telemetry Feature</th>
+                    <th>Pearson Correlation (&rho;) with AC_POWER</th>
+                    <th>Physical Significance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feature, value in correlation.top_correlations.items() %}
+                <tr>
+                    <td><code>{{ feature }}</code></td>
+                    <td><strong style="color: {% if value > 0.9 %}#0b8276{% elif value > 0.5 %}#d97706{% else %}#526a64{% endif %}">{{ "%.4f"|format(value) }}</strong></td>
+                    <td style="color:#637a73; font-size:0.8rem;">
+                        {% if feature == 'DC_POWER' %}Direct photovoltaic string generation (near-perfect &rho; &asymp; 1.0)
+                        {% elif feature == 'IRRADIATION' %}Primary driver of semiconductor electron excitation
+                        {% elif feature == 'MODULE_TEMPERATURE' %}Surface temperature dictating thermal conversion derating
+                        {% elif feature == 'TEMP_DIFF' %}Net thermal absorption (Module - Ambient)
+                        {% elif feature == 'IS_DAYLIGHT' %}Binary operational window indicator
+                        {% else %}Temporal and diurnal cycle indices{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Potential Outliers IQR Rule -->
+<section class="card">
+    <h2>Potential telemetry outliers (IQR rule)</h2>
+    <p>Observation counts outside $[Q_1 - 1.5 \times \text{IQR},\, Q_3 + 1.5 \times \text{IQR}]$:</p>
+    <div class="columns">
+        {% for feature, count in bivariate.outliers.items() %}
+            <span class="column">{{ feature }}: <strong>{{ count }}</strong></span>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Visual Insights Plots Grid -->
+<section class="card">
+    <div class="card-heading">
+        <div>
+            <h2>Visual insights</h2>
+            <p>Diurnal profiles, inverter power curves, and correlation heatmaps generated from the telemetry dataset.</p>
+        </div>
+    </div>
+    {% if plots %}
+    <div class="chart-grid">
+        {% for plot in plots %}
+        <article class="card chart-card">
+            <h2 style="font-size:0.95rem; margin-bottom:10px;">{{ plot.title }}</h2>
+            <img src="{{ url_for('serve_plot', filename=plot.url) }}" alt="{{ plot.title }}" loading="lazy">
+            <p style="font-size:0.8rem; color:#6f7f7a; margin-top:8px;">{{ plot.desc }}</p>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="success-message">Diagnostic charts will appear here.</p>
+    {% endif %}
+</section>
+{% endblock %}

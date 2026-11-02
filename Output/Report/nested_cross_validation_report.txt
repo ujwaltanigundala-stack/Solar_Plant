@@ -1,0 +1,29 @@
+================================================================================
+  MODULE 5: NESTED CROSS-VALIDATION UNBIASED EVALUATION REPORT
+================================================================================
+
+1. EXPERIMENTAL DESIGN:
+--------------------------------------------------
+Outer Folds:              5 (TimeSeriesSplit)
+Inner Folds:              3 (TimeSeriesSplit)
+Model Evaluated:          Ridge Regression with L2 Penalty Tuning
+
+2. QUANTIFIED SELECTION OPTIMISM BIAS:
+--------------------------------------------------
+Non-Nested Best Score:    1.048 kW (Tuned and evaluated on same folds)
+Nested Outer Unbiased:    1.048 +/- 0.342 kW
+Holdout Test Benchmark:   1.064 kW
+Selection Optimism Bias:  +0.000 kW
+
+Theoretical Insight: Non-nested CV reports an overly optimistic error score because the
+hyperparameter was chosen specifically to minimize error on the test folds.
+Nested CV separates selection from evaluation, providing an unbiased error estimate
+that closely tracks true holdout test performance.
+
+3. HYPERPARAMETER INSTABILITY AUDIT:
+--------------------------------------------------
+Fold 1: Chosen Alpha = 0.0001   | Outer Test RMSE = 1.714 kW
+Fold 2: Chosen Alpha = 0.0001   | Outer Test RMSE = 0.975 kW
+Fold 3: Chosen Alpha = 0.0001   | Outer Test RMSE = 0.950 kW
+Fold 4: Chosen Alpha = 0.0001   | Outer Test RMSE = 0.765 kW
+Fold 5: Chosen Alpha = 0.0001   | Outer Test RMSE = 0.833 kW

@@ -1,0 +1,23 @@
+================================================================================
+  MODULE 5: BAYESIAN OPTIMIZATION (OPTUNA TPE) VS RANDOM SEARCH REPORT
+================================================================================
+
+1. BENCHMARK SETUP:
+--------------------------------------------------
+Model Tuned:             ElasticNet Regularized Regression (4 Hyperparameters)
+Evaluation Budget:       30 Trials each
+Validation Strategy:     TimeSeriesSplit (5 folds strictly causal)
+
+2. OPTIMIZATION RESULTS:
+--------------------------------------------------
+Random Search Best RMSE: 0.927 kW (0.34s)
+Optuna (TPE) Best RMSE:  0.912 kW (0.946s)
+
+Random Search Best Parameters: {'elastic__alpha': 0.00016, 'elastic__l1_ratio': 0.90113, 'elastic__tol': 6e-05}
+Optuna (TPE) Best Parameters:  {'alpha': 0.00011, 'l1_ratio': 0.9858, 'tol': 1e-05}
+
+3. ALGORITHMIC EFFICIENCY INSIGHT:
+--------------------------------------------------
+The Tree-structured Parzen Estimator builds probabilistic models l(x) and g(x) representing
+good and bad hyperparameter regimes. Instead of uniform guessing, TPE actively samples from
+promising regions in (alpha, l1_ratio) space, achieving superior parameter refinement.

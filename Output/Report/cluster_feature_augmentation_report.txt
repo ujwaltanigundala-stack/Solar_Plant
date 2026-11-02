@@ -1,0 +1,36 @@
+================================================================================
+  MODULE 4: CLUSTERING FEATURE AUGMENTATION FOR SUPERVISED REGRESSION
+================================================================================
+
+1. METHODOLOGY & LEAKAGE PREVENTION:
+--------------------------------------------------
+Number of Clusters (K):      4
+Scaler & K-Means:            Fitted strictly on Plant 1 Train split
+Validation/Test Inference:   Transformed via fitted scaler, predict(), and transform()
+Target AC_POWER:             Never exposed to unsupervised components
+
+2. SUPERVISED TEST SET PERFORMANCE ACROSS FEATURE VARIANTS:
+--------------------------------------------------
+Variant                | Dim   | OLS RMSE   | OLS R2   | Ridge RMSE  | Ridge R2
+--------------------------------------------------
+Base_Only              | 10    | 1.064      | 1.0000   | 1.064       | 1.0000  
+Base_Plus_OneHot       | 14    | 1.079      | 1.0000   | 1.079       | 1.0000  
+Base_Plus_Distances    | 14    | 0.870      | 1.0000   | 0.870       | 1.0000  
+Composite_All          | 18    | 0.865      | 1.0000   | 0.865       | 1.0000  
+
+3. CROSS-PLANT TRANSFER (PLANT 2 UNSEEN):
+--------------------------------------------------
+Base_Only             : Ridge Unseen RMSE = 391.75 kW | R2 = -0.1704
+Base_Plus_OneHot      : Ridge Unseen RMSE = 391.61 kW | R2 = -0.1696
+Base_Plus_Distances   : Ridge Unseen RMSE = 391.07 kW | R2 = -0.1663
+Composite_All         : Ridge Unseen RMSE = 391.05 kW | R2 = -0.1662
+
+4. PAIRED BOOTSTRAP SIGNIFICANCE TEST (500 RESAMPLES):
+--------------------------------------------------
+Mean Delta RMSE:   +0.2002 kW
+95% Confidence Interval: [+0.1871, +0.2159] kW
+Statistically Significant: True
+
+Interpretation: The paired bootstrap establishes whether observed gains from
+cluster-centroid distance coordinates represent genuine physical structural improvement
+over the baseline linear feature space.

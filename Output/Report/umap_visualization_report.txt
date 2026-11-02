@@ -1,0 +1,24 @@
+================================================================================
+  MODULE 4: UMAP MANIFOLD LEARNING & PROJECTION REPORT
+================================================================================
+
+1. MATHEMATICAL FORMULATION & WORKED NUMERICAL EXAMPLE (Slide 13):
+--------------------------------------------------
+Points Tested:           [0.0, 1.0, 5.0, 6.0]
+Nearest Neighbor Rhos:   [1.0, 1.0, 1.0, 1.0]
+Solved Sigmas:           [3.6325, 2.8111, 2.8111, 3.6325]
+Target Membership Sum:   log2(3) = 1.585
+Result: Verified fuzzy simplicial sets formulation and binary search sigma matching slide.
+
+2. SOLAR MANIFOLD TOPOLOGY & HYPERPARAMETER TUNING:
+--------------------------------------------------
+Parameter Exploration:
+  * n_neighbors: Controls scale of manifold structure (low=fine local detail, high=global diurnal cycle).
+  * min_dist:    Controls packing density (low=compact clusters, high=diffuse continuum).
+
+3. OUT-OF-SAMPLE EMBEDDING & CROSS-PLANT DOMAIN SHIFT:
+--------------------------------------------------
+Plant 2 Out-of-Sample Transform Time: 7.7221 seconds
+Key Domain Insight: Unlike t-SNE, UMAP provides an exact out-of-sample transform() method.
+Projecting Plant 2 data onto Plant 1's learned manifold shows significant overlap during
+nighttime, but a structural offset in daytime coordinates due to the 10x DC_POWER scale shift.

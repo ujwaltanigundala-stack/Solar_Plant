@@ -1,0 +1,39 @@
+================================================================================
+  MODULE 4: MULTIVARIATE SOLAR ANOMALY DETECTION REPORT
+================================================================================
+
+1. WORKED NUMERICAL EXAMPLES VERIFICATION (Slides 6, 12, 16):
+--------------------------------------------------
+Isolation Forest n=6, c(6)=2.9: Points={50: {'path_length': 1, 'score': 0.7874}, 1: {'path_length': 3, 'score': 0.4882}, 4: {'path_length': 4, 'score': 0.3844}}
+One-Class SVM (RBF Kernel): {'Normal_P1': {'f_val': 0.4288, 'is_inlier': np.True_}, 'Outlier_P2': {'f_val': -0.35, 'is_inlier': np.False_}}
+Reconstruction Error (Linear AE): {'P1': {'recon_error': 0.0, 'is_anomaly': False}, 'P2': {'recon_error': 0.0, 'is_anomaly': False}, 'P3': {'recon_error': 12.5, 'is_anomaly': True}}
+Result: All three theoretical formulations match classroom slides.
+
+2. SOLAR DATASET EXPERIMENTAL SETUP:
+--------------------------------------------------
+Test Split Size:         10,317 rows (Plant 1 Test Split)
+Calibrated Contamination: 3.0%
+Features Monitored:      DC_POWER, IRRADIATION, AMBIENT_TEMPERATURE, MODULE_TEMPERATURE, TEMP_DIFF, HOUR
+
+3. ALGORITHM PERFORMANCE & ANOMALY COUNTS:
+--------------------------------------------------
+Isolation Forest:        96 anomalies (0.652s fit)
+One-Class SVM:           150 anomalies (0.053s fit)
+PCA Reconstruction:      291 anomalies (0.002s fit)
+Consensus (All 3 Flag):  21 high-confidence equipment faults
+Union (Any Flagged):     360 flagged records
+
+4. JACCARD SIMILARITY / CONCORDANCE:
+--------------------------------------------------
+Isolation Forest vs One-Class SVM:   Jaccard = 0.2178
+Isolation Forest vs Reconstruction:  Jaccard = 0.0750
+One-Class SVM vs Reconstruction:     Jaccard = 0.4045
+
+5. EQUIPMENT FAULT DETECTION BENCHMARK:
+--------------------------------------------------
+Daytime High-Irradiance Zero-Power Dropouts: 26
+  * Isolation Forest Detected:               4/26
+  * One-Class SVM Detected:                  26/26
+  * PCA Reconstruction Error Detected:       26/26
+Physical Insight: The anomaly detectors automatically isolate equipment trips and
+inverter disconnects during peak solar irradiance without needing supervised incident logs.

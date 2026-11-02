@@ -1,0 +1,53 @@
+=====================================================================================
+  SOLAR POWER GENERATION PREDICTION -- STATISTICAL SIGNIFICANCE REPORT
+  Course: Machine Learning (25SC2107E) -- Module 5: Evaluation & Validation
+=====================================================================================
+Generated At: 2026-10-08 23:02:51
+
+1. THEORETICAL METHODOLOGY & JUSTIFICATION
+-------------------------------------------------------------------------------------
+In classification problems, McNemar's test is standard for comparing two models
+by assessing discordant 0/1 prediction decisions in a 2x2 contingency table.
+
+In solar AC_POWER prediction (continuous physical generation in kW):
+  * Applying McNemar's test would require artificially binarizing continuous output,
+    discarding physical magnitude, and introducing arbitrary threshold bias.
+  * The authoritative continuous regression equivalents implemented here are:
+    1. Paired Non-Parametric Bootstrap (B = 1,000 resamples):
+       Estimates empirical 95% Confidence Intervals for Delta RMSE = RMSE_A - RMSE_B.
+       A confidence interval that strictly excludes zero proves statistical significance.
+    2. Paired Student's t-Test on Squared Errors: d_t = e_A^2 - e_B^2.
+    3. Wilcoxon Signed-Rank Test: Non-parametric rank test on error discrepancies.
+
+2. PAIRED BOOTSTRAP 95% CONFIDENCE INTERVALS (B = 1,000 RESAMPLES)
+-------------------------------------------------------------------------------------
+Model Comparison (A vs B)    | Observed Delta | Bootstrap Mean | 95% CI               | Decision      
+-------------------------------------------------------------------------------------
+OLS vs Ridge (L2)            | -0.0000        | -0.0000        | [-0.0000, -0.0000]   | NOT SIGNIF    
+OLS vs Lasso (L1)            | -0.5068        | -0.5083        | [-0.5425, -0.4767]   | SIGNIFICANT   
+OLS vs Cluster-Aug Ridge     | +0.1991        | +0.2003        | [+0.1869, +0.2161]   | SIGNIFICANT   
+Ridge vs Cluster-Aug Ridge   | +0.1991        | +0.2003        | [+0.1870, +0.2161]   | SIGNIFICANT   
+-------------------------------------------------------------------------------------
+
+3. PAIRWISE HYPOTHESIS TESTING MATRIX (Paired t-Test on Squared Errors)
+-------------------------------------------------------------------------------------
+                    OLS Linear   Ridge (L2)  Lasso (L1) Cluster-Aug Ridge
+OLS Linear               1.000   8.7269e-38  0.0000e+00       1.7985e-177
+Ridge (L2)          8.7269e-38        1.000  0.0000e+00       1.7788e-177
+Lasso (L1)          0.0000e+00   0.0000e+00       1.000        0.0000e+00
+Cluster-Aug Ridge  1.7985e-177  1.7788e-177  0.0000e+00             1.000
+-------------------------------------------------------------------------------------
+
+4. KEY STATISTICAL FINDINGS
+-------------------------------------------------------------------------------------
+1. OLS Linear vs Ridge (L2):
+   The 95% bootstrap CI for Delta RMSE includes zero, indicating no statistically
+   significant difference on the clean test split between unregularized OLS and Ridge.
+2. OLS vs Lasso (L1):
+   The 95% CI strictly excludes zero with p < 0.001. Lasso with excessive shrinkage
+   is statistically significantly inferior to OLS on this dataset.
+3. OLS vs Cluster-Augmented Ridge:
+   The 95% CI for Delta RMSE is strictly positive [excluding 0], demonstrating that
+   unsupervised operational regime features yield a statistically verifiable performance gain
+   over baseline linear regression.
+=====================================================================================

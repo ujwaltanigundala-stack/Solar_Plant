@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+
+{% block title %}Feature Engineering &amp; Regression Models — Solar Power ML{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+    <p class="eyebrow">SUPERVISED REGRESSION PIPELINE</p>
+    <h1>Feature Engineering, Regularization &amp; Live AC Predictor</h1>
+    <p>{{ dataset_name }} features are scaled, regularized via Ridge, Lasso, and Elastic Net, and deployed for real-time AC power inference.</p>
+</section>
+
+<!-- Cleaned Telemetry Hero Card -->
+<section class="card hero-card">
+    <div class="card-heading">
+        <div>
+            <h2>Cleaned telemetry dataset</h2>
+            <p>15-minute sensor synchronization, daylight filtering, and standardized feature transformations.</p>
+        </div>
+        <span class="status-pill">StandardScaler Fitted</span>
+    </div>
+
+    <div class="dataset-info">
+        <div class="info-box"><h3>{{ cleaned_shape[0] }}</h3><p>Training Observations</p></div>
+        <div class="info-box"><h3>{{ feature_columns|length }}</h3><p>Predictor Features</p></div>
+        <div class="info-box"><h3>{{ duplicate_count|default(0) }}</h3><p>Duplicates Removed</p></div>
+        <div class="info-box"><h3>AC_POWER</h3><p>Supervised Target</p></div>
+    </div>
+</section>
+
+<!-- Feature Columns Pills -->
+<section class="card">
+    <h2>Supervised feature columns (10 Telemetry Features)</h2>
+    <div class="columns">
+        {% for column in feature_columns %}
+            <span class="column">{{ column }}</span>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Folder Grid for Topics Matching Classroom Folder Box Layout -->
+<section class="folder-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 320px)); margin-bottom: 25px;" aria-label="Feature engineering folders">
+    
+    <!-- Folder 01: Preprocessing & Scaling -->
+    <article class="folder-box {% if active_folder == 'scaling-output' %}folder-open{% endif %}" data-target="scaling-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 01</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Preprocessing &amp; Scaling</h2>
+            <p class="folder-desc">Evaluating StandardScaler, MinMaxScaler, and RobustScaler transformations.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. StandardScaler</span>
+                <span class="topic-pill">2. MinMaxScaler</span>
+                <span class="topic-pill">3. RobustScaler</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Scaling Theory</h4>
+            <ul>
+                <li><strong>StandardScaler:</strong> Zero mean, unit variance $z = \frac{x - \mu}{\sigma}$. Essential for regularized $L_1/L_2$ penalties.</li>
+                <li><strong>Condition Number:</strong> Mitigates catastrophic ill-conditioning from raw DC magnitude.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="scaling-output">
+                <span class="btn-text">{% if active_folder == 'scaling-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 02: OLS Linear Regression -->
+    <article class="folder-box {% if active_folder == 'linear-output' %}folder-open{% endif %}" data-target="linear-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 02</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>OLS Linear Regression</h2>
+            <p class="folder-desc">Normal Equation $(X^TX)^{-1}X^Ty$ vs. Batch Gradient Descent cost curve.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Normal Eq</span>
+                <span class="topic-pill">2. Gradient Descent</span>
+                <span class="topic-pill">3. Baselines</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>OLS Insights</h4>
+            <ul>
+                <li><strong>Normal Equation:</strong> Closed-form minimum RMSE ($1.064$ kW on test split).</li>
+                <li><strong>Extreme Collinearity:</strong> DC_POWER accounts for over 98% of variance in linear space.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="linear-output">
+                <span class="btn-text">{% if active_folder == 'linear-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 03: Regularization Models -->
+    <article class="folder-box {% if active_folder == 'regularization-output' %}folder-open{% endif %}" data-target="regularization-output">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge">Folder 03</span>
+                <span class="hover-tip">Hover for details &rarr;</span>
+            </div>
+            <h2>Regularization Benchmark</h2>
+            <p class="folder-desc">Ridge ($L_2$), Lasso ($L_1$), and Elastic Net shrinkage penalties.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. Ridge (&alpha;=1e-4)</span>
+                <span class="topic-pill">2. Lasso Sparsity</span>
+                <span class="topic-pill">3. Elastic Net</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Regularization Insights</h4>
+            <ul>
+                <li><strong>Ridge (L2):</strong> Shrinks weights smoothly; condition number drops from $1.77 \times 10^{12}$ to stable.</li>
+                <li><strong>Lasso (L1):</strong> Coordinate descent drives 8 of 10 coefficients to exactly zero.</li>
+                <li><strong>Elastic Net:</strong> Convex combination of $L_1$ and $L_2$ penalties.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="regularization-output">
+                <span class="btn-text">{% if active_folder == 'regularization-output' %}Hide Section{% else %}Show Data{% endif %}</span>
+            </button>
+        </div>
+    </article>
+
+    <!-- Folder 04: Interactive Predictor Studio -->
+    <article class="folder-box {% if active_folder == 'predictor-output' %}folder-open{% endif %}" data-target="predictor-output" style="border: 2px solid var(--aqua);">
+        <div>
+            <div class="folder-header">
+                <span class="folder-badge" style="background: #fee2e2; color: #b91c1c;">⚡ Folder 04</span>
+                <span class="hover-tip">Live Inference &rarr;</span>
+            </div>
+            <h2>AC Power Predictor Studio</h2>
+            <p class="folder-desc">Interactive 10-feature prediction studio with presets and real-time kW forecasting.</p>
+            <div class="folder-topics">
+                <span class="topic-pill">1. 10 Features</span>
+                <span class="topic-pill">2. 4 Models</span>
+                <span class="topic-pill">3. Live Output</span>
+            </div>
+        </div>
+        <div class="folder-popup">
+            <h4>Inference Pipeline</h4>
+            <ul>
+                <li>Transforms inputs using the exact fitted StandardScaler from training.</li>
+                <li>Applies regression weights directly to compute forecasted AC_POWER in kW.</li>
+            </ul>
+        </div>
+        <div class="folder-footer">
+            <button class="show-folder-btn" type="button" data-target="predictor-output" style="background: var(--aqua); color: white;">
+                <span class="btn-text">{% if active_folder == 'predictor-output' %}Hide Predictor{% else %}Open Predictor{% endif %}</span>
+            </button>
+        </div>
+    </article>
+</section>
+
+<!-- ================= FOLDER PANELS ================= -->
+
+<!-- Panel 01: Scaling Output -->
+<div class="folder-panel" id="scaling-output" {% if active_folder != 'scaling-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>Feature Scaling Benchmark</h2>
+                <p>Comparison of normalization techniques on the clean test split.</p>
+            </div>
+            <span class="status-pill">StandardScaler Active</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Scaler</th>
+                        <th>Test RMSE (kW)</th>
+                        <th>Test MAE (kW)</th>
+                        <th>R² Score</th>
+                        <th>Condition Number</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sc in scaler_outputs %}
+                    <tr>
+                        <td><strong>{{ sc.scaler|capitalize }}Scaler</strong></td>
+                        <td><code>{{ "%.3f"|format(sc.rmse) }}</code></td>
+                        <td><code>{{ "%.3f"|format(sc.mae) }}</code></td>
+                        <td><code>{{ "%.4f"|format(sc.r2) }}</code></td>
+                        <td><code>{{ "%.1e"|format(sc.condition_number) }}</code></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Panel 02: Linear Output -->
+<div class="folder-panel" id="linear-output" {% if active_folder != 'linear-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--blue);">
+        <div class="card-heading">
+            <div>
+                <h2>OLS Linear Regression Performance</h2>
+                <p>Closed-form Normal Equation vs. Gradient Descent optimization.</p>
+            </div>
+            <span class="status-pill">Test RMSE: {{ "%.3f"|format(linear_model_data.test_metrics.rmse) }} kW</span>
+        </div>
+
+        <div class="dataset-info">
+            <div class="info-box"><h3>{{ "%.3f"|format(linear_model_data.train_metrics.rmse) }} kW</h3><p>Train RMSE</p></div>
+            <div class="info-box"><h3>{{ "%.3f"|format(linear_model_data.val_metrics.rmse) }} kW</h3><p>Validation RMSE</p></div>
+            <div class="info-box"><h3>{{ "%.3f"|format(linear_model_data.test_metrics.rmse) }} kW</h3><p>Test RMSE</p></div>
+            <div class="info-box"><h3>{{ "%.4f"|format(linear_model_data.test_metrics.r2) }}</h3><p>Test R²</p></div>
+        </div>
+
+        <h3 style="margin: 20px 0 10px; font-size:1rem;">Standardized Feature Coefficients (&beta;)</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Feature</th><th>Weight (&beta;)</th><th>Description</th></tr></thead>
+                <tbody>
+                    {% for item in linear_model_data.coefficients %}
+                    <tr>
+                        <td><code>{{ item.feature }}</code></td>
+                        <td><strong>{{ "%.4f"|format(item.standardized_weight) }}</strong></td>
+                        <td style="color:#637a73;">{{ item.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Panel 03: Regularization Output -->
+<div class="folder-panel" id="regularization-output" {% if active_folder != 'regularization-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: #4f46e5;">
+        <div class="card-heading">
+            <div>
+                <h2>Regularized Regression Benchmark: OLS vs Ridge vs Lasso vs Elastic Net</h2>
+                <p>Tuned hyperparameters, sparsity counts, and test metrics matching classroom Session 19 format.</p>
+            </div>
+            <span class="status-pill" style="background: #e0e7ff; color: #4338ca;">Regularization Suite</span>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Penalty Function &Omega;(w)</th>
+                        <th>Best Alpha (&lambda;)</th>
+                        <th>L1 Ratio (&alpha;)</th>
+                        <th>Train R²</th>
+                        <th>Test R²</th>
+                        <th>Test RMSE (kW)</th>
+                        <th>Zero Coefs</th>
+                        <th>Active Coefs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in reg_benchmark.comparison_table %}
+                    <tr>
+                        <td><strong>{{ row.Model }}</strong></td>
+                        <td><span class="penalty-pill penalty-l2">{{ row.Penalty }}</span></td>
+                        <td><code>{{ row['Best Alpha (lambda)'] }}</code></td>
+                        <td><code>{{ row['L1 Ratio (alpha)'] }}</code></td>
+                        <td>{{ row['Train R2'] }}</td>
+                        <td><strong style="color:#0b8276;">{{ row['Test R2'] }}</strong></td>
+                        <td><strong>{{ row['Test RMSE'] }}</strong></td>
+                        <td>{{ row['Zero Coefs'] }} Dropped</td>
+                        <td><strong>{{ row['Active Coefs'] }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Panel 04: Predictor Studio Output -->
+<div class="folder-panel" id="predictor-output" {% if active_folder != 'predictor-output' and active_folder != 'tree-predictor-output' %}hidden{% endif %}>
+    <section class="card hero-card" style="border-top-color: var(--aqua);">
+        <div class="card-heading">
+            <div>
+                <h2>Interactive Solar AC Power Predictor Studio</h2>
+                <p>Enter the 10 solar telemetry features or click a preset to calculate predicted <strong>AC_POWER</strong> in real-time.</p>
+            </div>
+            <span class="status-pill" style="background:#fee2e2; color:#b91c1c;">Live Model Inference</span>
+        </div>
+
+        <!-- Presets Bar -->
+        <div>
+            <label style="font-size:0.82rem; font-weight:800; color:var(--ink);">Quick Telemetry Presets:</label>
+            <div class="preset-btn-bar">
+                {% for p_key, p in presets.items() %}
+                <button type="button" class="preset-pill" data-preset="{{ p_key }}" data-values='{{ p["values"] | tojson }}' title="{{ p.desc }}">
+                    <span>☀️ {{ p.name }}</span> ({{ p.badge }})
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if error_message %}
+        <div class="error-message" style="margin-bottom:15px;">{{ error_message }}</div>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('feature_engg_page') }}">
+            <input type="hidden" name="active_folder" value="predictor-output">
+
+            <div style="margin-bottom: 16px;">
+                <label style="display:block; font-size:0.8rem; font-weight:800; margin-bottom:5px;">Select Regression Estimator:</label>
+                <select name="model_type" style="padding:10px 14px; border:1px solid var(--line); border-radius:8px; width:100%; max-width:380px; font-weight:700;">
+                    <option value="linear" {% if chosen_model == 'linear' %}selected{% endif %}>OLS Linear Regression (Normal Equation)</option>
+                    <option value="ridge" {% if chosen_model == 'ridge' %}selected{% endif %}>Ridge Regression (L2 Penalty, &alpha;=0.0001)</option>
+                    <option value="lasso" {% if chosen_model == 'lasso' %}selected{% endif %}>Lasso Regression (L1 Penalty, &alpha;=1.0)</option>
+                    <option value="elasticnet" {% if chosen_model == 'elasticnet' %}selected{% endif %}>Elastic Net (Combined L1 + L2)</option>
+                </select>
+            </div>
+
+            <!-- 10 Feature Inputs in Exact Specified Order -->
+            <div class="pred-input-grid">
+                <!-- 1. DC_POWER -->
+                <div class="pred-input-group">
+                    <label>1. DC Power <span class="unit">(kW, 0 - 14,500)</span></label>
+                    <input type="number" step="any" name="DC_POWER" value="{{ pred_inputs.DC_POWER | default(11500.0) }}" required>
+                </div>
+
+                <!-- 2. IRRADIATION -->
+                <div class="pred-input-group">
+                    <label>2. Irradiation <span class="unit">(W/m², 0.0 - 1.25)</span></label>
+                    <input type="number" step="any" name="IRRADIATION" value="{{ pred_inputs.IRRADIATION | default(0.98) }}" required>
+                </div>
+
+                <!-- 3. AMBIENT_TEMPERATURE -->
+                <div class="pred-input-group">
+                    <label>3. Ambient Temp <span class="unit">(°C, 15 - 45)</span></label>
+                    <input type="number" step="any" name="AMBIENT_TEMPERATURE" value="{{ pred_inputs.AMBIENT_TEMPERATURE | default(33.5) }}" required>
+                </div>
+
+                <!-- 4. MODULE_TEMPERATURE -->
+                <div class="pred-input-group">
+                    <label>4. Module Temp <span class="unit">(°C, 15 - 70)</span></label>
+                    <input type="number" step="any" name="MODULE_TEMPERATURE" value="{{ pred_inputs.MODULE_TEMPERATURE | default(55.2) }}" required>
+                </div>
+
+                <!-- 5. HOUR -->
+                <div class="pred-input-group">
+                    <label>5. Hour of Day <span class="unit">(0 - 23 hr)</span></label>
+                    <input type="number" min="0" max="23" name="HOUR" value="{{ pred_inputs.HOUR | default(12) }}" required>
+                </div>
+
+                <!-- 6. MINUTE -->
+                <div class="pred-input-group">
+                    <label>6. Sensor Minute <span class="unit">(0, 15, 30, 45 min)</span></label>
+                    <input type="number" min="0" max="59" name="MINUTE" value="{{ pred_inputs.MINUTE | default(30) }}" required>
+                </div>
+
+                <!-- 7. DAY -->
+                <div class="pred-input-group">
+                    <label>7. Calendar Day <span class="unit">(1 - 31)</span></label>
+                    <input type="number" min="1" max="31" name="DAY" value="{{ pred_inputs.DAY | default(15) }}" required>
+                </div>
+
+                <!-- 8. DAY_OF_WEEK -->
+                <div class="pred-input-group">
+                    <label>8. Day of Week <span class="unit">(0=Mon ... 6=Sun)</span></label>
+                    <input type="number" min="0" max="6" name="DAY_OF_WEEK" value="{{ pred_inputs.DAY_OF_WEEK | default(2) }}" required>
+                </div>
+
+                <!-- 9. TEMP_DIFF (Engineered) -->
+                <div class="pred-input-group">
+                    <label>9. Temp Diff <span class="unit">(Module - Ambient °C)</span></label>
+                    <input type="number" step="any" name="TEMP_DIFF" value="{{ pred_inputs.TEMP_DIFF | default(21.7) }}" required>
+                </div>
+
+                <!-- 10. IS_DAYLIGHT (Engineered) -->
+                <div class="pred-input-group">
+                    <label>10. Daylight Flag <span class="unit">(0=Night, 1=Day)</span></label>
+                    <select name="IS_DAYLIGHT" required>
+                        <option value="1" {% if pred_inputs.IS_DAYLIGHT == 1 or pred_inputs.IS_DAYLIGHT == '1' %}selected{% endif %}>1 (Daylight Active)</option>
+                        <option value="0" {% if pred_inputs.IS_DAYLIGHT == 0 or pred_inputs.IS_DAYLIGHT == '0' %}selected{% endif %}>0 (Nocturnal Standby)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="cta-button" style="margin-top:10px;">
+                <span>⚡ Calculate Predicted AC Power</span> <span>&rarr;</span>
+            </button>
+        </form>
+
+        <!-- Prediction Result Card -->
+        {% if prediction_result is not none %}
+        <div class="result-box-hero">
+            <span class="status-pill" style="background:#dcfce7; color:#15803d;">Forecasted AC Output</span>
+            <div class="result-val-display">{{ "%.2f"|format(prediction_result.prediction) }} kW AC</div>
+            <p style="margin:4px 0 0; color:#065f46; font-size:0.9rem;">
+                Estimated via <strong>{{ prediction_result.model_name }}</strong> using training-fitted StandardScaler.
+                {% if prediction_result.input_values.DC_POWER > 1 %}
+                    Apparent inverter conversion yield: <strong>{{ "%.1f"|format((prediction_result.prediction / prediction_result.input_values.DC_POWER) * 100) }}%</strong>.
+                {% else %}
+                    Standby mode: zero DC array generation.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Folder Tab Switching
+    function openFolder(targetId) {
+        document.querySelectorAll(".folder-panel").forEach(panel => panel.hidden = true);
+        document.querySelectorAll(".folder-box").forEach(box => {
+            box.classList.remove("folder-open");
+            const btnText = box.querySelector(".btn-text");
+            if (btnText) btnText.textContent = "Show Data";
+        });
+
+        const activePanel = document.getElementById(targetId);
+        if (activePanel) activePanel.hidden = false;
+
+        const activeBox = document.querySelector(`.folder-box[data-target="${targetId}"]`);
+        if (activeBox) {
+            activeBox.classList.add("folder-open");
+            const btnText = activeBox.querySelector(".btn-text");
+            if (btnText) btnText.textContent = "Hide Section";
+        }
+    }
+
+    document.querySelectorAll(".show-folder-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const target = btn.getAttribute("data-target");
+            const currentPanel = document.getElementById(target);
+            if (currentPanel && !currentPanel.hidden) {
+                currentPanel.hidden = true;
+                const box = btn.closest(".folder-box");
+                if (box) box.classList.remove("folder-open");
+                const btnText = btn.querySelector(".btn-text");
+                if (btnText) btnText.textContent = "Show Data";
+            } else {
+                openFolder(target);
+            }
+        });
+    });
+
+    // Preset button filling
+    document.querySelectorAll(".preset-pill").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const dataStr = btn.getAttribute("data-values");
+            if (!dataStr) return;
+            try {
+                const vals = JSON.parse(dataStr);
+                for (const [k, v] of Object.entries(vals)) {
+                    const input = document.querySelector(`[name="${k}"]`);
+                    if (input) input.value = v;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
+    });
+
+    // Auto-update TEMP_DIFF and IS_DAYLIGHT
+    const ambInput = document.querySelector('[name="AMBIENT_TEMPERATURE"]');
+    const modInput = document.querySelector('[name="MODULE_TEMPERATURE"]');
+    const diffInput = document.querySelector('[name="TEMP_DIFF"]');
+    const irrInput = document.querySelector('[name="IRRADIATION"]');
+    const dayInput = document.querySelector('[name="IS_DAYLIGHT"]');
+
+    function syncDerived() {
+        if (ambInput && modInput && diffInput) {
+            const a = parseFloat(ambInput.value);
+            const m = parseFloat(modInput.value);
+            if (!isNaN(a) && !isNaN(m)) diffInput.value = (m - a).toFixed(2);
+        }
+        if (irrInput && dayInput) {
+            const irr = parseFloat(irrInput.value);
+            if (!isNaN(irr)) dayInput.value = irr > 0.001 ? "1" : "0";
+        }
+    }
+
+    if (ambInput) ambInput.addEventListener("input", syncDerived);
+    if (modInput) modInput.addEventListener("input", syncDerived);
+    if (irrInput) irrInput.addEventListener("input", syncDerived);
+</script>
+{% endblock %}

@@ -5,3 +5,7 @@ seaborn
 scikit-learn
 scipy
 joblib
+Flask
+gunicorn
+optuna
+umap-learn

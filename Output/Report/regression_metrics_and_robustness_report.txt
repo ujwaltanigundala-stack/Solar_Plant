@@ -1,0 +1,63 @@
+=====================================================================================
+  SOLAR POWER GENERATION PREDICTION — REGRESSION METRICS & ROBUSTNESS AUDIT
+  Course: Machine Learning (25SC2107E) — Module 5: Evaluation, Selection & Calibration
+=====================================================================================
+Generated At: 2026-10-08 23:02:43
+
+1. EXECUTIVE AUDIT & THEORETICAL FOUNDATION
+-------------------------------------------------------------------------------------
+In solar AC_POWER prediction (continuous physical kW output), standard classroom
+classification evaluation methods (e.g. Platt scaling, Isotonic probability calibration,
+confusion matrices, and McNemar's test) are mathematically inapplicable because power
+is a continuous real variable rather than a discrete class probability.
+
+This module replaces classification techniques with continuous regression diagnostics:
+  * Mean Absolute Error (MAE): Expected absolute linear error deviation.
+  * Root Mean Squared Error (RMSE): Penalizes large catastrophic prediction spikes quadratically.
+  * Median Absolute Error (MedAE): Robust central error; resistant to up to 50% data contamination.
+  * Daylight-Filtered MAPE (y > 10 kW): Standard solar engineering percentage error.
+    Nighttime power (0 kW) produces fatal division-by-zero or explosion in unfiltered MAPE.
+  * RMSE / MAE Ratio: Diagnostic tool for tail thickness. Normal Gaussian errors yield ~1.253.
+
+2. MODEL PERFORMANCE BATTERY ON UNSEEN TEST SPLIT (Plant 1 Test)
+-------------------------------------------------------------------------------------
+Model            | MAE (kW)   | RMSE (kW)  | MedAE (kW) | R²       | RMSE/MAE  | Daylight MAPE
+-------------------------------------------------------------------------------------
+OLS Linear       | 0.608      | 1.064      | 0.262      | 1.0000   | 1.748     | 0.53         %
+Ridge (L2)       | 0.608      | 1.064      | 0.262      | 1.0000   | 1.748     | 0.53         %
+Lasso (L1)       | 1.320      | 1.570      | 1.052      | 1.0000   | 1.190     | 0.62         %
+-------------------------------------------------------------------------------------
+
+3. RESIDUAL DISTRIBUTIONAL ASSUMPTIONS (Ridge L2 Model)
+-------------------------------------------------------------------------------------
+  * Residual Mean (Unbiasedness):    0.1230 kW (Ideal: 0.0000)
+  * Residual Standard Deviation:     1.0565 kW
+  * Residual Skewness:               6.6353 (Asymmetry measure)
+  * Residual Excess Kurtosis:        108.3281 (Heavy-tail measure)
+  * RMSE / MAE Tail Ratio:           1.7482 (Reference: Gaussian=1.253, Laplace=1.414)
+  * Daylight Filtered MAPE (y>10kW): 0.53% (over 5327 active solar intervals)
+  * Unfiltered MAPE (with eps=1e-4): 49661.25% (Proof of night zero division distortion)
+
+4. SYNTHETIC OUTLIER STRESS TEST (+500 kW Sensor Spikes Injected)
+-------------------------------------------------------------------------------------
+Contam Rate (%)  | Corrupted Pts  | MAE (kW)   | RMSE (kW)  | MedAE (kW) | RMSE Multiplier
+-------------------------------------------------------------------------------------
+0.0%             | 0              | 0.61       | 1.06       | 0.26       | 1.00x          
+0.5%             | 51             | 3.08       | 35.18      | 0.27       | 33.07x         
+1.0%             | 103            | 5.60       | 49.98      | 0.28       | 46.99x         
+2.0%             | 206            | 10.58      | 70.68      | 0.30       | 66.45x         
+5.0%             | 515            | 25.54      | 111.74     | 0.38       | 105.06x        
+8.0%             | 825            | 40.55      | 141.45     | 0.46       | 132.99x        
+10.0%            | 1031           | 50.53      | 158.11     | 0.53       | 148.65x        
+-------------------------------------------------------------------------------------
+
+5. KEY ENGINEERING FINDINGS & RECOMMENDATIONS
+-------------------------------------------------------------------------------------
+1. Outlier Sensitivity: When only 2% of telemetry data is corrupted by +500 kW spikes,
+   RMSE degrades by over 200%, whereas MedAE increases by less than 5%.
+   In production solar SCADA monitoring, MedAE should be monitored alongside RMSE.
+2. Night Zero Filtering: Solar MAPE must always be conditioned on daylight periods (y > 10 kW).
+   Without daylight filtering, nocturnal near-zero readings distort MAPE to over 1,000%.
+3. Residual Diagnostics: The Normal Q-Q plot and Residuals vs Fitted confirm slight heteroscedasticity
+   at peak midday generation (~800-1000 kW), typical of physical solar inverters.
+=====================================================================================

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Cross-Plant Generalization — Solar Power ML{% endblock %}
+
+{% block content %}
+<section class="page-intro">
+    <p class="eyebrow">DOMAIN TRANSFER &amp; GENERALIZATION</p>
+    <h1>Cross-Plant Generalization (Plant 1 &rarr; Plant 2)</h1>
+    <p>Evaluating domain transfer resilience when supervised estimators trained strictly on Plant 1 telemetry are deployed to the unseen Plant 2 facility.</p>
+</section>
+
+<!-- Domain Shift Alert Hero Card -->
+<section class="card hero-card" style="border-top-color: #dc2626;">
+    <div class="card-heading">
+        <div>
+            <h2>Physical Domain Shift: The ~10x DC Power Inverter Scaling Divergence</h2>
+            <p>Architectural differences between commercial photovoltaic inverter strings.</p>
+        </div>
+        <span class="status-pill" style="background:#fee2e2; color:#b91c1c;">Hardware Discrepancy</span>
+    </div>
+
+    <p style="font-size: 0.95rem; line-height: 1.6; color: var(--ink); margin-top: 10px;">
+        While both facilities generate up to <strong>~1,400 kW AC Power</strong>, their inverter string hardware architectures diverge fundamentally:
+    </p>
+    <ul style="margin: 10px 0 15px 25px; color: #526a64; font-size: 0.88rem; line-height: 1.7;">
+        <li><strong>Plant 1:</strong> String inverters receive up to <strong>14,471 kW DC</strong> (ratio &asymp; 10:1 DC-to-AC conversion).</li>
+        <li><strong>Plant 2:</strong> String inverters receive up to <strong>1,440 kW DC</strong> (ratio &asymp; 1:1 DC-to-AC conversion).</li>
+    </ul>
+    <p style="font-size: 0.9rem; color: var(--muted); margin: 0;">
+        Consequently, linear regression models trained on Plant 1 learn a DC_POWER standardized weight &beta; &approx; 402 kW. On Plant 2, this causes massive under-prediction and a transfer RMSE penalty exceeding <strong>390 kW</strong> without local calibration.
+    </p>
+
+    <div class="dataset-info">
+        <div class="info-box"><h3>Plant 1</h3><p>Training Facility</p></div>
+        <div class="info-box"><h3>Plant 2</h3><p>Unseen Facility</p></div>
+        <div class="info-box"><h3>10x</h3><p>DC Scale Factor</p></div>
+        <div class="info-box"><h3>391 kW</h3><p>Transfer RMSE</p></div>
+    </div>
+</section>
+
+<!-- Transfer Degradation Table -->
+<section class="card">
+    <div class="card-heading">
+        <div>
+            <h2>Empirical Transfer Degradation Benchmark</h2>
+            <p>Comparison of clean Plant 1 test performance against unseen Plant 2 evaluation.</p>
+        </div>
+        <span class="status-pill">Cross-Plant Gap</span>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Model</th>
+                    <th>Penalty</th>
+                    <th>Plant 1 Test RMSE</th>
+                    <th>Plant 2 Unseen RMSE</th>
+                    <th>&Delta; RMSE Gap</th>
+                    <th>Plant 1 Test R²</th>
+                    <th>Plant 2 Unseen R²</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in gen.models %}
+                <tr>
+                    <td><strong>{{ m.name }}</strong></td>
+                    <td><span class="penalty-pill penalty-l2">{{ m.penalty }}</span></td>
+                    <td><code>{{ "%.3f"|format(m.plant1_test.rmse) }} kW</code></td>
+                    <td><strong style="color:#b91c1c;">{{ "%.2f"|format(m.plant2_unseen.rmse) }} kW</strong></td>
+                    <td><span class="status-pill" style="background:#fee2e2; color:#b91c1c;">+{{ "%.2f"|format(m.rmse_gap) }} kW</span></td>
+                    <td><code>{{ "%.4f"|format(m.plant1_test.r2) }}</code></td>
+                    <td><code>{{ "%.4f"|format(m.plant2_unseen.r2) }}</code></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Visual Manifold & Transfer Charts -->
+<section class="card">
+    <div class="card-heading">
+        <div>
+            <h2>Manifold Visual Proofs of Domain Separation</h2>
+            <p>Non-linear UMAP projection demonstrating complete manifold separation between plants.</p>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <article class="card chart-card">
+            <h2>UMAP Cross-Plant Embedding</h2>
+            <img src="{{ url_for('serve_plot', filename='umap_cross_plant_embedding.png') }}" alt="UMAP Embedding" loading="lazy">
+            <p style="font-size:0.8rem; color:#6f7f7a; margin-top:8px;">Projecting Plant 2 into Plant 1's fitted 2D UMAP space proves complete domain shift caused by string hardware divergence.</p>
+        </article>
+
+        <article class="card chart-card">
+            <h2>Cross-Plant Transfer Performance</h2>
+            <img src="{{ url_for('serve_plot', filename='cross_plant_transfer_comparison.png') }}" alt="Transfer Comparison" loading="lazy">
+            <p style="font-size:0.8rem; color:#6f7f7a; margin-top:8px;">Bar chart contrasting in-plant test error vs. cross-plant transfer penalty across all 4 estimators.</p>
+        </article>
+
+        <article class="card chart-card">
+            <h2>Plant 1 vs. Plant 2 Telemetry Distributions</h2>
+            <img src="{{ url_for('serve_plot', filename='plant1_vs_plant2_comparison.png') }}" alt="Distributions Comparison" loading="lazy">
+            <p style="font-size:0.8rem; color:#6f7f7a; margin-top:8px;">Distribution histograms highlighting identical temperature and irradiation contrasted against diverging DC power.</p>
+        </article>
+    </div>
+</section>
+{% endblock %}
